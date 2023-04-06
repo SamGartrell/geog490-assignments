@@ -6,10 +6,10 @@
   background-color: pink;
   color: white;
   text-decoration-line: black;
-  padding: 3rem;
+  padding: 2rem;
   z-index: 999999999;
   position: absolute;
-  background: url(img/trout.jpg);
+  background: url(img/pdx.jpg);
   background-repeat: no-repeat;
   background-size: auto;
   border-radius: 2rem;
@@ -44,18 +44,21 @@ body {
 
 <div id="header">
     <h2>Portland</h2>
-    <p>rainy city
-    </p>
+    <p>Sam Gartrell</p>
 </div>
 <div id='map'></div>
 
 <script>
+    let lng = -122.6788;
+    let lat = 45.5212;
+
     mapboxgl.accessToken = 'pk.eyJ1Ijoic2FtZ2FydHJlbGwiLCJhIjoiY2w3OWt3MW00MDNjbDN2cGRpc20ya3JnbyJ9.6t2ISNlyP1BvBmkSH2Ks_Q';
-    var myMap = new mapboxgl.Map({
-        container: 'map', // pointing to the above "map" div
-        style: 'mapbox://styles/samgartrell/clg5fdat2000101mdr3yhey8y',
-        center: [-122.6788, 45.5212],
-        zoom: 11
+
+    var map = new mapboxgl.Map({
+        container: 'map', // id of a div on your page, where the map will be inserted
+        style: 'mapbox://styles/mapbox/streets-v11', // stylesheet location
+        center: [lng, lat], // starting position [lng, lat] eg. [-122.6788, 45.5212]
+        zoom: 11 // starting zoom 
     });
 </script>
 
