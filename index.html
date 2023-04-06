@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+#header{
+  background-color: pink;
+  color: white;
+  text-decoration-line: black;
+  padding: 3rem;
+  z-index: 999999999;
+  position: absolute;
+  background: url(img/trout.jpg);
+  background-repeat: no-repeat;
+  background-size: auto;
+  border-radius: 2rem;
+  margin: 20px;
+  text-shadow: -1px 1px 0 #000,
+				  1px 1px 0 #000,
+				 1px -1px 0 #000,
+				-1px -1px 0 #000;
+  font: 'Garamond'
+
+}
+h2 {
+  font-size: 20pt
+}
+body {
+    margin:0; padding:0;
+}
+#map {
+    position:absolute;
+    top:0;
+    bottom:0;
+    width:100%;
+    z-index: 1;
+}
+</style>
+<!-- import mapbox files and tiles -->
+<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.js'></script>
+<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.css' rel='stylesheet' />
+
+</head>
+<body>
+
+<div id="header">
+    <h2>feeshin</h2>
+    <p>a map for peepin spots
+    </p>
+</div>
+<div id='map'></div>
+
+<script>
+    mapboxgl.accessToken = 'pk.eyJ1Ijoic2FtZ2FydHJlbGwiLCJhIjoiY2w3OWt3MW00MDNjbDN2cGRpc20ya3JnbyJ9.6t2ISNlyP1BvBmkSH2Ks_Q';
+    var myMap = new mapboxgl.Map({
+        container: 'map', // pointing to the above "map" div
+        style: 'mapbox://styles/samgartrell/clg5fdat2000101mdr3yhey8y', //cloned from Amy Lee Walton's map
+        center: [-122.6788, 45.5212],
+        zoom: 11
+    });
+</script>
+
+</body>
+</html>
