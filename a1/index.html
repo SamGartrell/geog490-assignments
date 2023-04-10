@@ -2,7 +2,7 @@
 <html>
 <head>
 <style>
-#header{
+#title{
   background-color: pink;
   color: white;
   text-decoration-line: black;
@@ -42,11 +42,12 @@ body {
 </head>
 <body>
 
-<div id="header">
-    <h2>Portland</h2>
-    <p>Sam Gartrell</p>
-</div>
-<div id='map'></div>
+    <div id='map'></div>
+    <div id="title">
+        <h2>Portland</h2>
+        <p>Sam Gartrell</p>
+    </div>
+
 
 <script>
     let lng = -122.6788;
@@ -56,10 +57,35 @@ body {
 
     var map = new mapboxgl.Map({
         container: 'map', // id of a div on your page, where the map will be inserted
-        style: 'mapbox://styles/mapbox/streets-v11', // stylesheet location
+        style: 'mapbox://styles/samgartrell/clgbdgpor002j01pg9mbx6o4y', // stylesheet location
         center: [lng, lat], // starting position [lng, lat] eg. [-122.6788, 45.5212]
+        pitch: 45,
+        bearing: -17.6,
         zoom: 11 // starting zoom 
     });
+
+    var pdx_pop = new mapboxgl.Popup({closeOnClick: false})
+        .setHTML("<h1>Portland</h1><br><p>a classic PNW town</p><br><a href='https://en.wikipedia.org/wiki/Portland,_Oregon'>read about it</a>") //popup text
+        
+
+    var mocks_pop = new mapboxgl.Popup({closeOnClick: false}) 
+        .setHTML("<h1>Mock's Crest</h1><br><p>a good place to sit and watch the sunset</p><br><a href='https://foursquare.com/v/mocks-crest-park/4da38fd47aee548168b8ecfe'>read about it</a>") //popup text
+        ; //add this popup to the map!
+
+    var pdx_marker = new mapboxgl.Marker({
+        color: '#812BD1'
+    })
+        .setLngLat([lng, lat]) // starting position [lng, lat] 
+        .addTo(map)
+        .setPopup(pdx_pop);
+
+    var mocks_marker = new mapboxgl.Marker({
+        color: '#812BD1'
+    })
+        .setLngLat([-122.6914, 45.5544]) // starting position [lng, lat] 
+        .addTo(map)
+        .setPopup(mocks_pop);
+    
 </script>
 
 </body>
