@@ -57,6 +57,50 @@ body {
         center: [-122.6788, 45.5212],
         zoom: 11
     });
+
+    // create varible for number of requests per second
+    let rps = 5
+    // actual endpoint (gets 403)
+    // var endpoint = 'http://waterservices.usgs.gov/nwis/iv/?format=json&indent=on&stateCd=or&parameterCd=00065&siteStatus=all'
+    
+    // // test endpoint (works)
+    // var endpoint = 'https://arcgis.gis.lacounty.gov/arcgis/rest/services/DRP/Open_Data/MapServer/3/query?where=1%3D1&outFields=NAME&outSR=4326&f=json'
+
+    // send api request
+    fetch(endpoint)
+    .then(response => response.json())
+    .then(data => {
+        // get data body
+        var gauges = data.value.timeSeries;
+
+        // iterate through locations, adding each one to the map
+        gauges.forEach(function(gauge) {
+        // Extract the gauge's latitude and longitude coordinates
+        var latitude = gauge.sourceInfo.geoLocation.geogLocation.latitude;
+        var longitude = gauge.sourceInfo.geoLocation.geogLocation.longitude;
+
+        // get the value of the depth
+        var depth = gauge.values[0].value[0].value;
+
+        // Create a marker on the map at the gauge's location
+        new mapboxgl.Marker({
+            color: getMarkerColor(depth)
+        })
+            .setLngLat([longitude, latitude])
+            .addTo(map);
+        });
+    });
+
+    // Define a function to get the marker color based on stream depth
+    function getMarkerColor(depth) {
+    if (depth < 2) {
+        return 'green';
+    } else if (depth < 4) {
+        return 'yellow';
+    } else {
+        return 'red';
+    }
+}
 </script>
 
 </body>
