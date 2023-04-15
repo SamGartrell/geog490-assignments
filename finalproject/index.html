@@ -53,14 +53,14 @@ body {
     mapboxgl.accessToken = 'pk.eyJ1Ijoic2FtZ2FydHJlbGwiLCJhIjoiY2w3OWt3MW00MDNjbDN2cGRpc20ya3JnbyJ9.6t2ISNlyP1BvBmkSH2Ks_Q';
     var myMap = new mapboxgl.Map({
         container: 'map', // pointing to the above "map" div
-        style: 'mapbox://styles/samgartrell/clg5fdat2000101mdr3yhey8y',
+        style: 'mapbox://styles/samgartrell/cl7tnbdlk000215qdvkret4rv',
         center: [-122.6788, 45.5212],
         zoom: 11
     });
 
     // create varible for number of requests per second (this isn't used yet, but is necessary for throttling)
     let rps = 5
-    
+
     // actual endpoint (gets 403)
     // var endpoint = 'http://waterservices.usgs.gov/nwis/iv/?format=json&indent=on&stateCd=or&parameterCd=00065&siteStatus=all'
     
