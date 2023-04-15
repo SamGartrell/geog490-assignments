@@ -58,8 +58,9 @@ body {
         zoom: 11
     });
 
-    // create varible for number of requests per second
+    // create varible for number of requests per second (this isn't used yet, but is necessary for throttling)
     let rps = 5
+    
     // actual endpoint (gets 403)
     // var endpoint = 'http://waterservices.usgs.gov/nwis/iv/?format=json&indent=on&stateCd=or&parameterCd=00065&siteStatus=all'
     
@@ -72,17 +73,17 @@ body {
     .then(data => {
         // get data body
         var gauges = data.value.timeSeries;
-
         // iterate through locations, adding each one to the map
         gauges.forEach(function(gauge) {
-        // Extract the gauge's latitude and longitude coordinates
+
+        // extract lat/lon
         var latitude = gauge.sourceInfo.geoLocation.geogLocation.latitude;
         var longitude = gauge.sourceInfo.geoLocation.geogLocation.longitude;
 
         // get the value of the depth
         var depth = gauge.values[0].value[0].value;
 
-        // Create a marker on the map at the gauge's location
+        // create marker at the gauge location
         new mapboxgl.Marker({
             color: getMarkerColor(depth)
         })
@@ -91,7 +92,7 @@ body {
         });
     });
 
-    // Define a function to get the marker color based on stream depth
+    // set marker color based on stream depth
     function getMarkerColor(depth) {
     if (depth < 2) {
         return 'green';
