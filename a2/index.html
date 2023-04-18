@@ -2,38 +2,60 @@
 <html>
 <head>
 <style>
-#title{
-  background-color: pink;
-  color: white;
-  text-decoration-line: black;
-  padding: 2rem;
-  z-index: 999999999;
-  position: absolute;
-  background: url(img/pdx.jpg);
-  background-repeat: no-repeat;
-  background-size: auto;
-  border-radius: 2rem;
-  margin: 20px;
-  text-shadow: -1px 1px 0 #000,
-				  1px 1px 0 #000,
-				 1px -1px 0 #000,
-				-1px -1px 0 #000;
-  font: 'Garamond'
+    body {margin:50px; padding:0; display:flex; flex-direction: column; background-color: #599CA2;}
+    .box {
+        display: flex;
+        flex-direction: row;
+    }
+    .map {
+    position:relative;
+    height: 400px;
+    width: 80%;
+    }
+    .text {
+        position: relative;
+        height: 400px;
+        width: 10%;
+        padding: 10px;
+    }
+    h1 {
+    font-size: 40px;
+    text-transform: uppercase;
+    font-family: 'Garamond', serif;
+    letter-spacing: 1px;
+    transition: 700ms ease;
+    font-variation-settings: "wght" 311;
+    margin-bottom: 0.8rem;
+    color: #345234;
+    outline: none;
+    text-align: left;
+    }
 
-}
-h2 {
-  font-size: 20pt
-}
-body {
-    margin:0; padding:0;
-}
-#map {
-    position:absolute;
-    top:0;
-    bottom:0;
-    width:100%;
-    z-index: 1;
-}
+    h1:hover {
+    font-variation-settings: "wght" 582; 
+    letter-spacing: 40px;
+    }
+    h2 {
+    font-size: 13px;
+    text-transform: uppercase;
+    font-family: 'Garamond', serif;
+    letter-spacing: 1px;
+    transition: 700ms ease;
+    font-variation-settings: "wght" 311;
+    margin-bottom: 0.8rem;
+    color: #345234;
+    outline: none;
+    text-align: center;
+    }
+    h2:hover {
+    font-variation-settings: "wght" 582; 
+    letter-spacing: 4px;
+    }
+    p {
+        font-size: 13;
+        font-family: 'Garamond', serif;
+        color: #243624;
+    }
 </style>
 <!-- import mapbox files and tiles -->
 <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.js'></script>
@@ -41,51 +63,147 @@ body {
 
 </head>
 <body>
-
-    <div id='map'></div>
-    <div id="title">
-        <h2>Portland</h2>
-        <p>Sam Gartrell</p>
+    <h1>Blue River</h1>
+    <div id="1" class='box'>
+        <div id='text1' class="text"><p>A beautiful creek (not quite a river) laden with hidden wonders (including trout, stocked seasonally). It is situated near the H.J. Andrews experimental forest, which helped determine that old growth trees were worth saving. As a result, you will often find yourself surrounded by massive douglas firs when wishing on its eastern banks.</p></div>
+        <div id='map1' class="map"></div>
+    </div>
+    
+    <h1>Fall Creek</h1>
+    <div id="2" class='box'>
+        
+        <div id='text2' class="text"><p>Another stocked creek south of Eugene. The section pictured features a deep pool whence many a fat trout have been plucked. Above the small falls is another accommodating pool, clear enough to allow for sight-casting.</p></div>
+        <div id='map2' class="map"></div>
+    </div>
+    
+    <h1>Thompson Creek</h1>
+    <div id="3" class='box'>
+        <div id='text3' class="text"><p>Though brushy and prone to snag-ups, this undiscovered and unstocked spot has ample native salmonids. Because it connects to the Pacific via the Siuslaw River, there is potential for salmon and steelhead trout to make their way into the area; Thus, there is a salmon spawning survey site along the creek and keeping salmon caught here is discouraged.</p></div>
+        <div id='map3' class="map"></div>
     </div>
 
-
 <script>
-    let lng = -122.6788;
-    let lat = 45.5212;
+
+    // define location objects
+    fishingSpots = [
+        {
+            'lat': 44.259356,
+            'lon': -122.2177475,
+            'pitch': 70,
+            'bearing': 51.2,
+            'zoom': 14.49,
+            'title': "Blue River",
+            'blurb': 'Snowy in the colder months. Located in beautiful forest.',
+            'url': 'https://www.fs.usda.gov/recarea/willamette/recarea/?recid=4398'
+            
+        },
+        {
+            'lat': 43.96317,
+            'lon': -122.62479,
+            'pitch': 66,
+            'bearing': 139.2,
+            'zoom': 15.06,
+            'title': "Fall Creek",
+            'blurb': 'Cold, clear pools.',
+            'url': 'https://www.bestfishinginamerica.com/or-fall-creek-fishing-oregon.html'
+        },
+        {
+            'lat': 44.08088,
+            'lon': -123.86345,
+            'pitch': 15,
+            'bearing': -39.2,
+            'zoom': 14.66,
+            'title': "Thompson Creek",
+            'blurb': 'Small, but fishy indeed.',
+            'url': 'https://www.oregonwaterfalls.net/thompson.htm'
+    
+        }
+    ]
+
 
     mapboxgl.accessToken = 'pk.eyJ1Ijoic2FtZ2FydHJlbGwiLCJhIjoiY2w3OWt3MW00MDNjbDN2cGRpc20ya3JnbyJ9.6t2ISNlyP1BvBmkSH2Ks_Q';
+    
+    // // custom marker stuff (not working for multiple maps)
+    // const fishy = document.createElement('div');
+    // const width = 40;
+    // const height = 40;
+    // fishy.className = 'fish-marker';
+    // fishy.style.backgroundImage = `url(img/fish.svg)`;
+    // fishy.style.width = `${width}px`;
+    // fishy.style.height = `${height}px`;
+    // fishy.style.backgroundSize = '100%';
+    // fishy.style.color = '#599CA2'
 
-    var map = new mapboxgl.Map({
-        container: 'map', // id of a div on your page, where the map will be inserted
-        style: 'mapbox://styles/samgartrell/clgbdgpor002j01pg9mbx6o4y', // stylesheet location
-        center: [lng, lat], // starting position [lng, lat] eg. [-122.6788, 45.5212]
-        pitch: 70,
-        bearing: -17.6,
-        zoom: 11 // starting zoom 
+    // map 1
+    var map1 = new mapboxgl.Map({
+        container: 'map1', // id of a div on your page, where the map will be inserted
+        style: 'mapbox://styles/samgartrell/cl7tnbdlk000215qdvkret4rv', // stylesheet location
+        center: [fishingSpots[0].lon, fishingSpots[0].lat], // starting position [lng, lat] eg. [-122.6788, 45.5212]
+        pitch: fishingSpots[0].pitch,
+        bearing: fishingSpots[0].bearing,
+        zoom: fishingSpots[0].zoom // starting zoom 
     });
 
-    var pdx_pop = new mapboxgl.Popup({closeOnClick: false})
-        .setHTML("<h1>Portland</h1><br><p>a classic PNW town</p><br><a href='https://en.wikipedia.org/wiki/Portland,_Oregon'>read about it</a>") //popup text
-        
+    var pop1 = new mapboxgl.Popup({closeOnClick: false})
+        .setHTML(`<h2>${fishingSpots[0].title}</h2><p>${fishingSpots[0].blurb}</p><br><a href=${fishingSpots[0].link}>more</a>`) //popup text
 
-    var mocks_pop = new mapboxgl.Popup({closeOnClick: false}) 
-        .setHTML("<h1>Mock's Crest</h1><br><p>a good place to sit and watch the sunset</p><br><a href='https://foursquare.com/v/mocks-crest-park/4da38fd47aee548168b8ecfe'>read about it</a>") //popup text
-        ; //add this popup to the map!
 
-    var pdx_marker = new mapboxgl.Marker({
-        color: '#812BD1'
-    })
-        .setLngLat([lng, lat]) // starting position [lng, lat] 
-        .addTo(map)
-        .setPopup(pdx_pop);
+    var mark1 = new mapboxgl.Marker({color: '#599CA2'})
+        .setLngLat([fishingSpots[0].lon,fishingSpots[0].lat]) // starting position [lng, lat] 
+        .addTo(map1)
+        .setPopup(pop1);
 
-    var mocks_marker = new mapboxgl.Marker({
-        color: '#812BD1'
-    })
-        .setLngLat([-122.6914, 45.5544]) // starting position [lng, lat] 
-        .addTo(map)
-        .setPopup(mocks_pop);
+    // map2
+    var map2 = new mapboxgl.Map({
+        container: 'map2', // id of a div on your page, where the map will be inserted
+        style: 'mapbox://styles/samgartrell/cl7tnbdlk000215qdvkret4rv', // stylesheet location
+        center: [fishingSpots[1].lon, fishingSpots[1].lat], // starting position [lng, lat] eg. [-122.6788, 45.5212]
+        pitch: fishingSpots[1].pitch,
+        bearing: fishingSpots[1].bearing,
+        zoom: fishingSpots[1].zoom // starting zoom 
+    });
+
+    var pop2 = new mapboxgl.Popup({closeOnClick: false})
+        .setHTML(`<h2>${fishingSpots[1].title}</h2><p>${fishingSpots[1].blurb}</p><br><a href=${fishingSpots[1].link}>more</a>`) //popup text
+
+
+    var mark2 = new mapboxgl.Marker({color: '#599CA2'})
+        .setLngLat([fishingSpots[1].lon,fishingSpots[1].lat]) // starting position [lng, lat] 
+        .addTo(map2)
+        .setPopup(pop2);
+
+    // map3
+    var map3 = new mapboxgl.Map({
+        container: 'map3', // id of a div on your page, where the map will be inserted
+        style: 'mapbox://styles/samgartrell/cl7tnbdlk000215qdvkret4rv', // stylesheet location
+        center: [fishingSpots[2].lon, fishingSpots[2].lat], // starting position [lng, lat] eg. [-122.6788, 45.5212]
+        pitch: fishingSpots[2].pitch,
+        bearing: fishingSpots[2].bearing,
+        zoom: fishingSpots[2].zoom // starting zoom 
+    });
+
     
+    var pop3 = new mapboxgl.Popup({closeOnClick: false})
+        .setHTML(`<h2>${fishingSpots[2].title}</h2><p>${fishingSpots[2].blurb}</p><br><a href=${fishingSpots[2].link}>more</a>`) //popup text
+
+
+    var mark3 = new mapboxgl.Marker({color: '#599CA2'})
+        .setLngLat([fishingSpots[2].lon,fishingSpots[2].lat]) // starting position [lng, lat] 
+        .addTo(map3)
+        .setPopup(pop3);
+    
+    const maps = [map1, map2, map3];
+
+    maps.forEach(map => {
+    map.dragPan.disable();
+    map.scrollZoom.disable();
+    map.boxZoom.disable();
+    map.dragRotate.disable();
+    map.keyboard.disable();
+    map.doubleClickZoom.disable();
+    map.touchZoomRotate.disable();
+    map.touchZoomRotate.disableRotation();
+    });
 </script>
 
 </body>
