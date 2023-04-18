@@ -1,15 +1,27 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset='utf-8' />
     <title>Owners vs Renters Map</title>
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.js'></script>
     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.css' rel='stylesheet' />
     <style>
-        body { margin:0; padding:0; }
-        #map { position:absolute; top:0; bottom:0; width:100%; }
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+
         /*  stlye for paragraph tags */
         p {
             color: white;
@@ -30,7 +42,8 @@
             width: 300px;
             height: 40px;
             background: rgba(80, 80, 80, .75);
-            transition: width .3s, height .3s; /* this is the time it takes for the container to transition */
+            transition: width .3s, height .3s;
+            /* this is the time it takes for the container to transition */
             border-radius: 7px;
         }
 
@@ -52,11 +65,11 @@
         .legendItem {
             margin: 0px;
             padding-left: 10px;
-            display:inline-block;
-            margin:auto;
+            display: inline-block;
+            margin: auto;
             transform: translate(50%, 50%);
         }
-                
+
 
         /* style for items with the class "layerDescription" */
         .layerDescription {
@@ -64,12 +77,13 @@
             padding-left: 10px;
         }
 
-                
+
         .renter {
-                color:#bc57ff;
+            color: #bc57ff;
         }
-        .owner{
-                color:#3de600;
+
+        .owner {
+            color: #3de600;
         }
 
         /* style for items with the class "chevron" */
@@ -81,59 +95,64 @@
         }
     </style>
 </head>
+
 <body>
-  <!-- map div -->
-  <div id='map'></div>
-  <div class="descriptionPanel" id="descriptionPanel" style="height: 250px;">
-    <span onClick=panelSelect() id="glyph" class="chevron glyphicon glyphicon-chevron-down"></span>
-    <hr/>
+    <!-- map div -->
+    <div id='map'></div>
 
-    <!-- map description panel -->
-    <h4>WHAT AM I LOOKING AT?</h4>
-    <p style="margin-left: 10px; margin-right: 10px;">
-      This is a map showing every single person in the Portland Area as a dot. Data is taken from the 2017 US Census, and is accurate at the level of a block, however within each block location is randomized. Points are colored based on the number home owners versus renters on a block.
-    </p>
-  </div>
+    <!-- map description panel: note the onClick function that references a funciton in the script -->
+    <div class="descriptionPanel" id="descriptionPanel" style="height: 250px;">
+        <span onClick=panelSelect() id="glyph" class="chevron glyphicon glyphicon-chevron-down"></span>
+        <hr />
 
-  <!-- map legend -->
-  <div class="LegendContainer">
-    <div class="legendItem">
-        <span class="owner">&#11044;</span>
-        <span class="layerDescription">Owners</span>
+        <h4>WHAT AM I LOOKING AT?</h4>
+        <p style="margin-left: 10px; margin-right: 10px;">
+            This is a map showing every single person in the Portland Area as a dot. Data is taken from the 2017 US
+            Census, and is accurate at the level of a block, however within each block location is randomized. Points
+            are colored based on the number home owners versus renters on a block.
+        </p>
     </div>
-    <div class="legendItem">
-        <span class="renter">&#11044;</span>
-        <span class="layerDescription">Renters</span>
+
+    <!-- map legend -->
+    <div class="LegendContainer">
+        <div class="legendItem">
+            <span class="owner">&#11044;</span>
+            <span class="layerDescription">Owners</span>
+        </div>
+        <div class="legendItem">
+            <span class="renter">&#11044;</span>
+            <span class="layerDescription">Renters</span>
+        </div>
     </div>
-  </div>
-  <script>
-    // set up js map
-    mapboxgl.accessToken = 'pk.eyJ1Ijoic2FtZ2FydHJlbGwiLCJhIjoiY2w3OWt3MW00MDNjbDN2cGRpc20ya3JnbyJ9.6t2ISNlyP1BvBmkSH2Ks_Q'; 
-    var map = new mapboxgl.Map({
-        container: 'map', // container id
-        style: 'mapbox://styles/samgartrell/clgmkaowe001i01q44gug0137', // stylesheet location
-    });
+    <script>
+        // set up js map
+        mapboxgl.accessToken = 'pk.eyJ1Ijoic2FtZ2FydHJlbGwiLCJhIjoiY2w3OWt3MW00MDNjbDN2cGRpc20ya3JnbyJ9.6t2ISNlyP1BvBmkSH2Ks_Q';
+        var map = new mapboxgl.Map({
+            container: 'map', // container id
+            style: 'mapbox://styles/samgartrell/clgmkaowe001i01q44gug0137', // stylesheet location
+        });
 
-     // Add zoom and rotation controls to the map ( I am a skilled programmer! )
-    map.addControl(new mapboxgl.NavigationControl(), 'top-left');
+        // Add zoom and rotation controls to the map ( I am a skilled programmer! )
+        map.addControl(new mapboxgl.NavigationControl(), 'top-left');
 
-    // panel selection (tells the function if the panel is currently opened or closed)
-    var state = { panelOpen: true };
+        // panel selection (tells the function if the panel is currently opened or closed)
+        var state = { panelOpen: true };
 
-    // panel selection function. opens or closes the panel depending on its current state, when clicked.
-    // changes the icon!
-    function panelSelect(e){
-        if(state.panelOpen){
-            document.getElementById('descriptionPanel').style.height = '26px';
-            document.getElementById('glyph').className = "chevron glyphicon glyphicon-chevron-up";
-            state.panelOpen = false;
-        } else {
-            document.getElementById('descriptionPanel').style.height = '250px';
-            document.getElementById('glyph').className = "chevron glyphicon glyphicon-chevron-down";
-            state.panelOpen = true;
+        // panel selection function. opens or closes the panel (manipulates css height prop) depending on its current state, when clicked.
+        // changes the icon! points the glyph at one of two chevrons
+        function panelSelect(e) {
+            if (state.panelOpen) {
+                document.getElementById('descriptionPanel').style.height = '26px';
+                document.getElementById('glyph').className = "chevron glyphicon glyphicon-chevron-up";
+                state.panelOpen = false;
+            } else {
+                document.getElementById('descriptionPanel').style.height = '250px';
+                document.getElementById('glyph').className = "chevron glyphicon glyphicon-chevron-down";
+                state.panelOpen = true;
+            }
         }
-    }
-  </script>
+    </script>
 
 </body>
+
 </html>
