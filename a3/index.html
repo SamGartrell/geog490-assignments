@@ -102,7 +102,7 @@
 
     <!-- map description panel: note the onClick function that references a funciton in the script -->
     <div class="descriptionPanel" id="descriptionPanel" style="height: 250px;">
-        <span onClick=panelSelect() id="glyph" class="chevron glyphicon glyphicon-chevron-down"></span>
+        <span onClick=panelSelect(this) id="glyph" class="chevron glyphicon glyphicon-chevron-down"></span>
         <hr />
 
         <h4>WHAT AM I LOOKING AT?</h4>
@@ -141,6 +141,10 @@
         // panel selection function. opens or closes the panel (manipulates css height prop) depending on its current state, when clicked.
         // changes the icon! points the glyph at one of two chevrons
         function panelSelect(e) {
+            console.log(e) //note that "e" represents the 
+            //               ELEMENT in which this function was called, 
+            //               since we put "this" inside the () when
+            //               calling the funciton
             if (state.panelOpen) {
                 document.getElementById('descriptionPanel').style.height = '26px';
                 document.getElementById('glyph').className = "chevron glyphicon glyphicon-chevron-up";
@@ -150,6 +154,7 @@
                 document.getElementById('glyph').className = "chevron glyphicon glyphicon-chevron-down";
                 state.panelOpen = true;
             }
+            console.log(state)
         }
     </script>
 
