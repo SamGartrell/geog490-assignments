@@ -51,7 +51,7 @@ body {
 
 <script>
     mapboxgl.accessToken = 'pk.eyJ1Ijoic2FtZ2FydHJlbGwiLCJhIjoiY2w3OWt3MW00MDNjbDN2cGRpc20ya3JnbyJ9.6t2ISNlyP1BvBmkSH2Ks_Q';
-    var myMap = new mapboxgl.Map({
+    var map = new mapboxgl.Map({
         container: 'map', // pointing to the above "map" div
         style: 'mapbox://styles/samgartrell/cl7tnbdlk000215qdvkret4rv',
         center: [-122.6788, 45.5212],
@@ -60,12 +60,12 @@ body {
 
     // create varible for number of requests per second (this isn't used yet, but is necessary for throttling)
     let rps = 5
-
-    // actual endpoint (gets 403)
-    // var endpoint = 'http://waterservices.usgs.gov/nwis/iv/?format=json&indent=on&stateCd=or&parameterCd=00065&siteStatus=all'
     
-    // // test endpoint (works)
-    // var endpoint = 'https://arcgis.gis.lacounty.gov/arcgis/rest/services/DRP/Open_Data/MapServer/3/query?where=1%3D1&outFields=NAME&outSR=4326&f=json'
+    // actual endpoint (gets 403)
+    var endpoint = 'http://waterservices.usgs.gov/nwis/iv/?format=json&indent=on&stateCd=or&parameterCd=00065&siteStatus=all'
+    
+    // // local file endpoint, copied from the rest API response in browser (works)
+    var endpoint = './response.json'
 
     // send api request
     fetch(endpoint)
@@ -73,22 +73,32 @@ body {
     .then(data => {
         // get data body
         var gauges = data.value.timeSeries;
+        
+        // set a counter and limit for testing
+        let counter = 0;
+        let limit = 999;
+        console.log('gauges:', gauges)
         // iterate through locations, adding each one to the map
         gauges.forEach(function(gauge) {
+            counter++;
+            if (counter <= limit) {
+            // extract lat/lon
+            var latitude = gauge.sourceInfo.geoLocation.geogLocation.latitude;
+            var longitude = gauge.sourceInfo.geoLocation.geogLocation.longitude;
 
-        // extract lat/lon
-        var latitude = gauge.sourceInfo.geoLocation.geogLocation.latitude;
-        var longitude = gauge.sourceInfo.geoLocation.geogLocation.longitude;
+            // get other attrs
+            var depth = gauge.values[0].value[0].value;
+            var name = gauge.sourceInfo.siteName;
 
-        // get the value of the depth
-        var depth = gauge.values[0].value[0].value;
-
-        // create marker at the gauge location
-        new mapboxgl.Marker({
-            color: getMarkerColor(depth)
-        })
-            .setLngLat([longitude, latitude])
-            .addTo(map);
+            // create marker at the gauge location
+            new mapboxgl.Marker({
+                color: getMarkerColor(depth)
+            })
+                .setLngLat([longitude, latitude])
+                .addTo(map);
+            
+            console.log('gauges added')
+            }
         });
     });
 
@@ -102,6 +112,8 @@ body {
         return 'red';
     }
 }
+
+
 </script>
 
 </body>
