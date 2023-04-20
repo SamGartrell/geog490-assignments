@@ -57,18 +57,15 @@ body {
         center: [-122.6788, 45.5212],
         zoom: 11
     });
-
-    // create varible for number of requests per second (this isn't used yet, but is necessary for throttling)
-    let rps = 5
     
     // actual endpoint (gets 403)
-    var endpoint = 'http://waterservices.usgs.gov/nwis/iv/?format=json&indent=on&stateCd=or&parameterCd=00065&siteStatus=all'
+    var endpoint = `https://waterservices.usgs.gov/nwis/iv/?format=json&indent=on&stateCd=or&${formatDateStamp()}&parameterCd=00060&siteStatus=all`
     
     // // local file endpoint, copied from the rest API response in browser (works)
-    var endpoint = './response.json'
+    var local = './data.json'
 
     // send api request
-    fetch(endpoint)
+    fetch(local)
     .then(response => response.json())
     .then(data => {
         // get data body
@@ -82,37 +79,58 @@ body {
         gauges.forEach(function(gauge) {
             counter++;
             if (counter <= limit) {
-            // extract lat/lon
-            var latitude = gauge.sourceInfo.geoLocation.geogLocation.latitude;
-            var longitude = gauge.sourceInfo.geoLocation.geogLocation.longitude;
-
-            // get other attrs
-            var depth = gauge.values[0].value[0].value;
-            var name = gauge.sourceInfo.siteName;
-
+                // make a little gauge object "g" for better readability
+                g = {
+                    'lat': gauge.sourceInfo.geoLocation.geogLocation.latitude,
+                    'lon': gauge.sourceInfo.geoLocation.geogLocation.longitude,
+                    'title': gauge.sourceInfo.siteName,
+                    'data': {
+                        'value': gauge.values[0].value[0].value,
+                        'time': gauge.values[0].value[0].dateTime,
+                        'desc': gauge.variable.variableDescription,
+                        'unit': gauge.variable.unit.unitcode
+                    }
+                }
+            
             // create marker at the gauge location
             new mapboxgl.Marker({
-                color: getMarkerColor(depth)
+                color: getMarkerColor(g.data)
             })
-                .setLngLat([longitude, latitude])
-                .addTo(map);
-            
+            .setLngLat([g.lon, g.lat])
+            .addTo(map)
+            .setPopup(
+                // make a corresponding popup
+                new mapboxgl.Popup({closeOnClick: true, focusAfterOpen: false})
+                .setHTML(
+                    `<h2>${g.title}</h2>
+                    <p>${g.data.desc}: ${g.data.value}</p>
+                    <br>
+                    <a href=https://waterdata.usgs.gov/nwis/rt>updated at ${g.data.time}</a>`
+                )
+            );
             console.log('gauges added')
             }
         });
     });
 
-    // set marker color based on stream depth
-    function getMarkerColor(depth) {
-    if (depth < 2) {
-        return 'green';
-    } else if (depth < 4) {
-        return 'yellow';
-    } else {
-        return 'red';
-    }
-}
+    // FUNCTIONS:
+    function formatDateStamp() {
+        const now = new Date().toISOString();
+        const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+        
+        return `startDT=${weekAgo}&endDT=${now}`;
+    }   
 
+    // color markers based on stream depth
+    function getMarkerColor(attributes) {
+        if (attributes.depth < 2) {
+            return 'green';
+        } else if (attributes.depth < 4) {
+            return 'yellow';
+        } else {
+            return 'red';
+        }
+    }
 
 </script>
 
