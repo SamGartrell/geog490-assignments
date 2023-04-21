@@ -1,7 +1,6 @@
 #header {
     background-color: pink;
     color: white;
-    text-decoration-line: black;
     padding: 3rem;
     z-index: 999999999;
     position: absolute;
@@ -15,7 +14,6 @@
         1px -1px 0 #000,
         -1px -1px 0 #000;
     font: 'Garamond'
-
 }
 
 /* style for heading level 4 tags */
@@ -40,3 +38,38 @@ body {
     width: 100%;
     z-index: 1;
 }
+
+.menu {
+    display: flex;
+    z-index: 9999;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    height: 6%; /* set a height or remove this line to fit content */
+    position: absolute;
+    bottom: 0;
+  }
+
+  .media-box {
+    display: flex;
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    bottom: 6%;
+    left: 0;
+    right: 0;
+    padding: .5%;
+  }
+  
+  .chart {
+    background-color: antiquewhite;
+    z-index: 10000;
+    border-radius: 2rem;
+    margin: 20px;
+    padding: 20px;
+    height: 100%;
+    flex: 1 1 auto; /* this will make the charts grow and shrink as necessary */
+    min-width: calc(100% / 4 - 2%); /* adjust the fraction based on the number of charts you want to display */
+    max-width: calc(100% / 1 - 2%);
+  }
