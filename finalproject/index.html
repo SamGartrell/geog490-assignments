@@ -1,40 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-<style>
-#header{
-  background-color: pink;
-  color: white;
-  text-decoration-line: black;
-  padding: 3rem;
-  z-index: 999999999;
-  position: absolute;
-  background: url(img/trout.jpg);
-  background-repeat: no-repeat;
-  background-size: auto;
-  border-radius: 2rem;
-  margin: 20px;
-  text-shadow: -1px 1px 0 #000,
-				  1px 1px 0 #000,
-				 1px -1px 0 #000,
-				-1px -1px 0 #000;
-  font: 'Garamond'
-
-}
-h2 {
-  font-size: 20pt
-}
-body {
-    margin:0; padding:0;
-}
-#map {
-    position:absolute;
-    top:0;
-    bottom:0;
-    width:100%;
-    z-index: 1;
-}
-</style>
+<meta charset='utf-8' />
+<title>Owners vs Renters Map</title>
+<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"
+integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<script
+src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
+</script>
+<link rel='stylesheet' href="./css/style.css">
 <!-- import mapbox files and tiles -->
 <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.js'></script>
 <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.css' rel='stylesheet' />
@@ -48,91 +23,6 @@ body {
     </p>
 </div>
 <div id='map'></div>
-
-<script>
-    mapboxgl.accessToken = 'pk.eyJ1Ijoic2FtZ2FydHJlbGwiLCJhIjoiY2w3OWt3MW00MDNjbDN2cGRpc20ya3JnbyJ9.6t2ISNlyP1BvBmkSH2Ks_Q';
-    var map = new mapboxgl.Map({
-        container: 'map', // pointing to the above "map" div
-        style: 'mapbox://styles/samgartrell/cl7tnbdlk000215qdvkret4rv',
-        center: [-122.6788, 45.5212],
-        zoom: 11
-    });
-    
-    // actual endpoint (gets 403)
-    var endpoint = `https://waterservices.usgs.gov/nwis/iv/?format=json&indent=on&stateCd=or&${formatDateStamp()}&parameterCd=00060&siteStatus=all`
-    
-    // // local file endpoint, copied from the rest API response in browser (works)
-    var local = './data.json'
-
-    // send api request
-    fetch(local)
-    .then(response => response.json())
-    .then(data => {
-        // get data body
-        var gauges = data.value.timeSeries;
-        
-        // set a counter and limit for testing
-        let counter = 0;
-        let limit = 999;
-        console.log('gauges:', gauges)
-        // iterate through locations, adding each one to the map
-        gauges.forEach(function(gauge) {
-            counter++;
-            if (counter <= limit) {
-                // make a little gauge object "g" for better readability
-                g = {
-                    'lat': gauge.sourceInfo.geoLocation.geogLocation.latitude,
-                    'lon': gauge.sourceInfo.geoLocation.geogLocation.longitude,
-                    'title': gauge.sourceInfo.siteName,
-                    'data': {
-                        'value': gauge.values[0].value[0].value,
-                        'time': gauge.values[0].value[0].dateTime,
-                        'desc': gauge.variable.variableDescription,
-                        'unit': gauge.variable.unit.unitcode
-                    }
-                }
-            
-            // create marker at the gauge location
-            new mapboxgl.Marker({
-                color: getMarkerColor(g.data)
-            })
-            .setLngLat([g.lon, g.lat])
-            .addTo(map)
-            .setPopup(
-                // make a corresponding popup
-                new mapboxgl.Popup({closeOnClick: true, focusAfterOpen: false})
-                .setHTML(
-                    `<h2>${g.title}</h2>
-                    <p>${g.data.desc}: ${g.data.value}</p>
-                    <br>
-                    <a href=https://waterdata.usgs.gov/nwis/rt>updated at ${g.data.time}</a>`
-                )
-            );
-            console.log('gauges added')
-            }
-        });
-    });
-
-    // FUNCTIONS:
-    function formatDateStamp() {
-        const now = new Date().toISOString();
-        const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-        
-        return `startDT=${weekAgo}&endDT=${now}`;
-    }   
-
-    // color markers based on stream depth
-    function getMarkerColor(attributes) {
-        if (attributes.depth < 2) {
-            return 'green';
-        } else if (attributes.depth < 4) {
-            return 'yellow';
-        } else {
-            return 'red';
-        }
-    }
-
-</script>
-
+<script src="./js/index.js"></script>
 </body>
 </html>

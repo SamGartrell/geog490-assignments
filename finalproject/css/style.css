@@ -1,0 +1,42 @@
+#header {
+    background-color: pink;
+    color: white;
+    text-decoration-line: black;
+    padding: 3rem;
+    z-index: 999999999;
+    position: absolute;
+    background: url(../img/trout.jpg);
+    background-repeat: no-repeat;
+    background-size: auto;
+    border-radius: 2rem;
+    margin: 20px;
+    text-shadow: -1px 1px 0 #000,
+        1px 1px 0 #000,
+        1px -1px 0 #000,
+        -1px -1px 0 #000;
+    font: 'Garamond'
+
+}
+
+/* style for heading level 4 tags */
+h4 {
+    color: white;
+    margin-left: 10px;
+}
+
+h2 {
+    font-size: 20pt
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+#map {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    z-index: 1;
+}
