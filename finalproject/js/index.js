@@ -61,6 +61,45 @@ fetch(local)
         });
     });
 
+//ChatGPT and the 7 JSONs
+const results = {};
+
+for (let i = 0; i < 7; i++) {
+  const url = `./data/${i+1}.json`;
+
+  const xhr = new XMLHttpRequest();
+  xhr.open('GET', url, true);
+  xhr.onload = function() {
+    if (this.status === 200) {
+      const data = JSON.parse(this.responseText);
+      const timeSeries = data.value.timeSeries;
+      for (let j = 0; j < timeSeries.length; j++) {
+        const siteCode = timeSeries[j].sourceInfo.siteCode[0].value;
+        const siteName = timeSeries[j].sourceInfo.siteName;
+
+        if (!results[siteCode]) {
+          results[siteCode] = {
+            name: siteName,
+            readings: {}
+          };
+        }
+
+        const readings = timeSeries[j].values[0].value.map(v => parseFloat(v.value));
+        results[siteCode].readings[i+1] = readings;
+      }
+    } else {
+      console.error(`Error: ${this.status} ${this.statusText}`);
+    }
+  };
+  xhr.onerror = function() {
+    console.error('Error fetching data');
+  };
+  xhr.send();
+}
+
+console.log('results by site for past 7 days:', results)
+
+
 // CHART
 const ctx = document.getElementById('line-canvas').getContext("2d")
 
