@@ -10,7 +10,7 @@ var map = new mapboxgl.Map({
 var endpoint = `https://waterservices.usgs.gov/nwis/iv/?format=json&indent=on&stateCd=or&${formatDateStamp()}&parameterCd=00060&siteStatus=all`
 
 // // local file endpoint, copied from the rest API response in browser (works)
-var local = './data.json'
+var local = './data/data.json'
 
 // send api request
 fetch(local)
@@ -62,46 +62,46 @@ fetch(local)
     });
 
 //ChatGPT and the 7 JSONs
+const days = ['today', 'yesterday', '2daysago', '3daysago', '4daysago', '5daysago', '6daysago'];
 const results = {};
 
-for (let i = 0; i < 7; i++) {
+// Create an array of promises
+const promises = days.map((day, i) => {
   const url = `./data/${i+1}.json`;
+  return fetch(url).then(response => response.json());
+});
 
-  const xhr = new XMLHttpRequest();
-  xhr.open('GET', url, true);
-  xhr.onload = function() {
-    if (this.status === 200) {
-      const data = JSON.parse(this.responseText);
-      const timeSeries = data.value.timeSeries;
-      for (let j = 0; j < timeSeries.length; j++) {
-        const siteCode = timeSeries[j].sourceInfo.siteCode[0].value;
-        const siteName = timeSeries[j].sourceInfo.siteName;
+// Wait for all promises to resolve before continuing
+Promise.all(promises).then(data => {
+  data.forEach(json => {
+    const timeSeries = json.value.timeSeries;
+    for (let j = 0; j < timeSeries.length; j++) {
+      const siteCode = timeSeries[j].sourceInfo.siteCode[0].value;
+      const siteName = timeSeries[j].sourceInfo.siteName;
 
-        if (!results[siteCode]) {
-          results[siteCode] = {
-            name: siteName,
-            readings: {}
-          };
-        }
-
-        const readings = timeSeries[j].values[0].value.map(v => parseFloat(v.value));
-        results[siteCode].readings[i+1] = readings;
+      if (!results[siteCode]) {
+        results[siteCode] = {
+          name: siteName,
+          readings: {}
+        };
       }
-    } else {
-      console.error(`Error: ${this.status} ${this.statusText}`);
-    }
-  };
-  xhr.onerror = function() {
-    console.error('Error fetching data');
-  };
-  xhr.send();
-}
 
-console.log('results by site for past 7 days:', results)
+      const readings = timeSeries[j].values[0].value.map(v => parseFloat(v.value));
+      const index = data.indexOf(json) + 1;
+      results[siteCode].readings[index] = readings;
+    }
+  });
+  
+  console.log(results);
+}).catch(error => {
+  console.error(error);
+});
 
 
 // CHART
-const ctx = document.getElementById('line-canvas').getContext("2d")
+const site = '11504270';
+
+const ctx = document.getElementById('line-canvas').getContext("2d");
 
 // gradient fill
 let gradient = ctx.createLinearGradient(0, 0, 0, 400);
@@ -116,47 +116,57 @@ const labels = [
     "3 days ago",
     "yesterday",
     "today",
-]
+];
 
-const data = {
-    labels,
-    datasets: [{
-        data: [
-            63,
-            65,
-            99,
-            43,
-            44,
-            22,
-            1
-        ],
-        label: 'stream shit',
-        fill: true,
-        backgroundColor: gradient,
-        borderColor: "#FFF",
-        pointRadius: 5,
-        pointHoverRadius: 10,
-        pointHitRadius: 15
-    }]
-};
+let flowRates = [];
 
-const config = {
-    type: 'line',
-    data: data,
-    options: {
-        responsive: true,
-        scales: {
-            yAxes: [{
-              scaleLabel: {
-                display: true,
-                labelString: 'flow (cubic ft/sec)'
-              }
-            }]
-        }
+// wait for the data to finish cooking before doing any chart stuff with it
+Promise.all(promises)
+.then(() => {
+    for (let i = 1; i <= 7; i++) {
+        vals = results[site]["readings"][i];
+        mean = vals.reduce(
+            (acc, val) => acc + val, 0
+        ) / vals.length;
+        flowRates.push(mean)
+        
     }
-};
+    
+    console.log(flowRates)
+    
+    const data = {
+        labels,
+        datasets: [{
+            data: flowRates,
+            label: results[site].name,
+            fill: true,
+            backgroundColor: gradient,
+            borderColor: "#FFF",
+            pointRadius: 5,
+            pointHoverRadius: 10,
+            pointHitRadius: 15
+        }]
+    };
+    
+    const config = {
+        type: 'line',
+        data: data,
+        options: {
+            responsive: true,
+            scales: {
+                yAxes: [{
+                  scaleLabel: {
+                    display: true,
+                    labelString: 'flow (cubic ft/sec)'
+                  }
+                }]
+            }
+        }
+    };
+    
+    const myChart = new Chart(ctx, config)
+});
 
-const myChart = new Chart(ctx, config)
 
 // FUNCTIONS:
 function formatDateStamp() {
