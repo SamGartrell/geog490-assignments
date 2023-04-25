@@ -6,9 +6,9 @@ var map = new mapboxgl.Map({
     zoom: 11
 });
 
+// Data for Map points:
 // actual endpoint (gets 403)
 var endpoint = `https://waterservices.usgs.gov/nwis/iv/?format=json&indent=on&stateCd=or&${formatDateStamp()}&parameterCd=00060&siteStatus=all`
-
 // // local file endpoint, copied from the rest API response in browser (works)
 var local = './data/data.json'
 
@@ -32,6 +32,7 @@ fetch(local)
                     'lat': gauge.sourceInfo.geoLocation.geogLocation.latitude,
                     'lon': gauge.sourceInfo.geoLocation.geogLocation.longitude,
                     'title': gauge.sourceInfo.siteName,
+                    'id': gauge.sourceInfo.siteCode,
                     'data': {
                         'value': gauge.values[0].value[0].value,
                         'time': gauge.values[0].value[0].dateTime,
@@ -39,27 +40,45 @@ fetch(local)
                         'unit': gauge.variable.unit.unitcode
                     }
                 }
+                
+                // manually create a marker div
+                let markerEl = document.createElement('div');
+                //let popupEl =
 
-                // create marker at the gauge location
+                // add a class to the marker for styling
+                markerEl.className = 'sam-marker';
+
+                // set the name property on the marker element
+                divId = g.id.toString()
+                markerEl.setAttribute('id', divId);
+                console.log(markerEl)
+                // create the Mapbox marker object and add it to the map
                 new mapboxgl.Marker({
-                    color: getMarkerColor(g.data)
+                    markerEl
                 })
                     .setLngLat([g.lon, g.lat])
                     .addTo(map)
                     .setPopup(
-                        // make a corresponding popup
-                        new mapboxgl.Popup({ closeOnClick: true, focusAfterOpen: false })
-                            .setHTML(
-                                `<h2>${g.title}</h2>
-                    <p>${g.data.desc}: ${g.data.value}</p>
-                    <br>
-                    <a href=https://waterdata.usgs.gov/nwis/rt>updated at ${g.data.time}</a>`
-                            )
-                    );
-                console.log('gauges added')
+                // make a corresponding popup
+                new mapboxgl.Popup({ closeOnClick: true, focusAfterOpen: false })
+                    .setHTML(
+                        `<h2>${g.title}</h2>
+                <p>${g.data.desc}: ${g.data.value}</p>
+                <br>
+                <a href=https://waterdata.usgs.gov/nwis/rt>updated at ${g.data.time}</a>`
+                        )
+                );
+                }
             }
-        });
-    });
+        )
+    }
+);
+            
+
+map.on('click', 'sam-marker', function (event) {
+    const markerName = event.target.getAttribute('site-id')
+    console.dir(markerName)
+});
 
 //ChatGPT and the 7 JSONs
 const days = ['today', 'yesterday', '2daysago', '3daysago', '4daysago', '5daysago', '6daysago'];
@@ -99,7 +118,7 @@ Promise.all(promises).then(data => {
 
 
 // CHART
-const site = '11504270';
+const site = '14092500';
 
 const ctx = document.getElementById('line-canvas').getContext("2d");
 
@@ -133,7 +152,7 @@ Promise.all(promises)
     }
     
     console.log(flowRates)
-    
+
     const data = {
         labels,
         datasets: [{
