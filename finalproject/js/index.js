@@ -2,8 +2,8 @@ mapboxgl.accessToken = 'pk.eyJ1Ijoic2FtZ2FydHJlbGwiLCJhIjoiY2w3OWt3MW00MDNjbDN2c
 var map = new mapboxgl.Map({
     container: 'map', // pointing to the above "map" div
     style: 'mapbox://styles/samgartrell/cl7tnbdlk000215qdvkret4rv',
-    center: [-122.6788, 45.5212],
-    zoom: 11
+    center: [-120.5542, 43.8041],
+    zoom: 8
 });
 
 // Data for Map points:
@@ -32,7 +32,7 @@ fetch(local)
                     'lat': gauge.sourceInfo.geoLocation.geogLocation.latitude,
                     'lon': gauge.sourceInfo.geoLocation.geogLocation.longitude,
                     'title': gauge.sourceInfo.siteName,
-                    'id': gauge.sourceInfo.siteCode,
+                    'id': gauge.sourceInfo.siteCode[0].value,
                     'data': {
                         'value': gauge.values[0].value[0].value,
                         'time': gauge.values[0].value[0].dateTime,
@@ -40,92 +40,77 @@ fetch(local)
                         'unit': gauge.variable.unit.unitcode
                     }
                 }
-                
-                // manually create a marker div
+                // manually create a marker div and popup
                 let markerEl = document.createElement('div');
-                //let popupEl =
-
-                // add a class to the marker for styling
-                markerEl.className = 'sam-marker';
-
-                // set the name property on the marker element
-                divId = g.id.toString()
-                markerEl.setAttribute('id', divId);
+                markerEl.setAttribute('id', `${g.id}`);
                 console.log(markerEl)
+
+                let popup = new mapboxgl.Popup(
+                    { closeOnClick: true, focusAfterOpen: false }
+                    ).setHTML(`<h2>${g.title}</h2>
+                            <p>${g.data.desc}: ${g.data.value}</p>
+                            <br>
+                            <a href=https://waterdata.usgs.gov/nwis/rt>updated at ${g.data.time}</a>`
+                    );
+                
+                
                 // create the Mapbox marker object and add it to the map
-                new mapboxgl.Marker({
-                    markerEl
-                })
+                new mapboxgl.Marker({g})
                     .setLngLat([g.lon, g.lat])
                     .addTo(map)
-                    .setPopup(
-                // make a corresponding popup
-                new mapboxgl.Popup({ closeOnClick: true, focusAfterOpen: false })
-                    .setHTML(
-                        `<h2>${g.title}</h2>
-                <p>${g.data.desc}: ${g.data.value}</p>
-                <br>
-                <a href=https://waterdata.usgs.gov/nwis/rt>updated at ${g.data.time}</a>`
-                        )
-                );
-                }
+                    .setPopup(popup)
             }
+        }
         )
     }
-);
-            
-
-map.on('click', 'sam-marker', function (event) {
-    const markerName = event.target.getAttribute('site-id')
-    console.dir(markerName)
-});
-
+    );
+    
 //ChatGPT and the 7 JSONs
 const days = ['today', 'yesterday', '2daysago', '3daysago', '4daysago', '5daysago', '6daysago'];
 const results = {};
 
 // Create an array of promises
 const promises = days.map((day, i) => {
-  const url = `./data/${i+1}.json`;
-  return fetch(url).then(response => response.json());
+    const url = `./data/${i + 1}.json`;
+    return fetch(url).then(response => response.json());
 });
 
 // Wait for all promises to resolve before continuing
 Promise.all(promises).then(data => {
-  data.forEach(json => {
-    const timeSeries = json.value.timeSeries;
-    for (let j = 0; j < timeSeries.length; j++) {
-      const siteCode = timeSeries[j].sourceInfo.siteCode[0].value;
-      const siteName = timeSeries[j].sourceInfo.siteName;
+    data.forEach(json => {
+        const timeSeries = json.value.timeSeries;
+        for (let j = 0; j < timeSeries.length; j++) {
+            const siteCode = timeSeries[j].sourceInfo.siteCode[0].value;
+            const siteName = timeSeries[j].sourceInfo.siteName;
 
-      if (!results[siteCode]) {
-        results[siteCode] = {
-          name: siteName,
-          readings: {}
-        };
-      }
+            if (!results[siteCode]) {
+                results[siteCode] = {
+                    name: siteName,
+                    readings: {}
+                };
+            }
 
-      const readings = timeSeries[j].values[0].value.map(v => parseFloat(v.value));
-      const index = data.indexOf(json) + 1;
-      results[siteCode].readings[index] = readings;
-    }
-  });
-  
-  console.log(results);
+            const readings = timeSeries[j].values[0].value.map(v => parseFloat(v.value));
+            const index = data.indexOf(json) + 1;
+            results[siteCode].readings[index] = readings;
+        }
+    });
+
+    console.log(results);
 }).catch(error => {
-  console.error(error);
+    console.error(error);
 });
 
 
 // CHART
-const site = '14092500';
+let site = '14400000';
 
 const ctx = document.getElementById('line-canvas').getContext("2d");
 
 // gradient fill
 let gradient = ctx.createLinearGradient(0, 0, 0, 400);
-gradient.addColorStop(0.3,'rgba(60,50,40,0.5)'); // top of chart
-gradient.addColorStop(1,'rgba(0,170,190,0.4)'); // bottom of chart
+gradient.addColorStop(0.3, 'rgba(60,50,40,0.5)'); // top of chart
+gradient.addColorStop(1, 'rgba(0,170,190,0.4)'); // bottom of chart
 
 const labels = [
     "last week",
@@ -141,50 +126,50 @@ let flowRates = [];
 
 // wait for the data to finish cooking before doing any chart stuff with it
 Promise.all(promises)
-.then(() => {
-    for (let i = 1; i <= 7; i++) {
-        vals = results[site]["readings"][i];
-        mean = vals.reduce(
-            (acc, val) => acc + val, 0
-        ) / vals.length;
-        flowRates.push(mean)
-        
-    }
-    
-    console.log(flowRates)
+    .then(() => {
+        for (let i = 1; i <= 7; i++) {
+            vals = results[site]["readings"][i];
+            mean = vals.reduce(
+                (acc, val) => acc + val, 0
+            ) / vals.length;
+            flowRates.push(mean)
 
-    const data = {
-        labels,
-        datasets: [{
-            data: flowRates,
-            label: results[site].name,
-            fill: true,
-            backgroundColor: gradient,
-            borderColor: "#FFF",
-            pointRadius: 5,
-            pointHoverRadius: 10,
-            pointHitRadius: 15
-        }]
-    };
-    
-    const config = {
-        type: 'line',
-        data: data,
-        options: {
-            responsive: true,
-            scales: {
-                yAxes: [{
-                  scaleLabel: {
-                    display: true,
-                    labelString: 'flow (cubic ft/sec)'
-                  }
-                }]
-            }
         }
-    };
-    
-    const myChart = new Chart(ctx, config)
-});
+
+        console.log(flowRates)
+
+        const data = {
+            labels,
+            datasets: [{
+                data: flowRates,
+                label: results[site].name,
+                fill: true,
+                backgroundColor: gradient,
+                borderColor: "#FFF",
+                pointRadius: 5,
+                pointHoverRadius: 10,
+                pointHitRadius: 15
+            }]
+        };
+
+        const config = {
+            type: 'line',
+            data: data,
+            options: {
+                responsive: true,
+                scales: {
+                    yAxes: [{
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'flow (cubic ft/sec)'
+                        }
+                    }]
+                }
+            }
+        };
+
+        const myChart = new Chart(ctx, config)
+    });
 
 
 // FUNCTIONS:
@@ -208,6 +193,11 @@ function getMarkerColor(attributes) {
     }
 }
 
+// pass ID to chart element
+function getID(id, chartEl=document.getElementById('line')) {
+    chartEl.setAttribute('siteid', id)
+    console.log('yo')
+};
 
 
 // panel selection function. opens or closes the panel (manipulates css height prop) depending on its current state, when clicked.
