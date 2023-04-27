@@ -40,26 +40,22 @@ fetch(local)
                         'unit': gauge.variable.unit.unitcode
                     }
                 }
-                // manually create a marker div and popup
-                let markerEl = document.createElement('div');
-                markerEl.setAttribute('id', `${g.id}`);
-                console.log(markerEl)
 
                 let popup = new mapboxgl.Popup(
                     { closeOnClick: true, focusAfterOpen: false }
-                    ).setHTML(`<h2>${g.title}</h2>
+                ).setHTML(`<h2>${g.title}</h2>
                             <p>${g.data.desc}: ${g.data.value}</p>
                             <br>
                             <a href=https://waterdata.usgs.gov/nwis/rt>updated at ${g.data.time}</a>`
-                    );
-                
-                
+                );
+
+
                 // create the Mapbox marker object and add it to the map
-                let marker = new mapboxgl.Marker({g})
+                let marker = new mapboxgl.Marker({ g })
                     .setLngLat([g.lon, g.lat])
                     .addTo(map)
                     .setPopup(popup)
-                    
+
                 let element = marker.getElement()
                 element.setAttribute('siteid', `${g.id}`)
                 element.setAttribute(
@@ -70,113 +66,55 @@ fetch(local)
         )
     }
     );
-    
-//ChatGPT and the 7 JSONs
-const days = ['today', 'yesterday', '2daysago', '3daysago', '4daysago', '5daysago', '6daysago'];
-const results = {};
 
-// Create an array of promises
-const promises = days.map((day, i) => {
-    const url = `./data/${i + 1}.json`;
-    return fetch(url).then(response => response.json());
-});
-
-// Wait for all promises to resolve before continuing
-Promise.all(promises).then(data => {
-    data.forEach(json => {
-        const timeSeries = json.value.timeSeries;
-        for (let j = 0; j < timeSeries.length; j++) {
-            const siteCode = timeSeries[j].sourceInfo.siteCode[0].value;
-            const siteName = timeSeries[j].sourceInfo.siteName;
-
-            if (!results[siteCode]) {
-                results[siteCode] = {
-                    name: siteName,
-                    readings: {}
-                };
-            }
-
-            const readings = timeSeries[j].values[0].value.map(v => parseFloat(v.value));
-            const index = data.indexOf(json) + 1;
-            results[siteCode].readings[index] = readings;
-        }
-    });
-
-    console.log(results);
-}).catch(error => {
-    console.error(error);
-});
-
+// retrieve data for last 7 days and restructure to be ingestible by renderChart()
+// an array of promises is also returned, in case the requests are still executing
+// eventually, put this in a timeout loop that runs every hour or something
+structuredData = retrieveData()
 
 // CHART
-let site = '14400000';
+const chartEl = document.getElementById('line-canvas')
 
-const ctx = document.getElementById('line-canvas').getContext("2d");
+// Options for the observer (which mutations to observe)
+const config = { attributes: true, childList: false, subtree: false };
 
-// gradient fill
-let gradient = ctx.createLinearGradient(0, 0, 0, 400);
-gradient.addColorStop(0.3, 'rgba(60,50,40,0.5)'); // top of chart
-gradient.addColorStop(1, 'rgba(0,170,190,0.4)'); // bottom of chart
-
-const labels = [
-    "last week",
-    "6 days ago",
-    "5 days ago",
-    "4 days ago",
-    "3 days ago",
-    "yesterday",
-    "today",
-];
-
-let flowRates = [];
-
-// wait for the data to finish cooking before doing any chart stuff with it
-Promise.all(promises)
-    .then(() => {
-        for (let i = 1; i <= 7; i++) {
-            vals = results[site]["readings"][i];
-            mean = vals.reduce(
-                (acc, val) => acc + val, 0
-            ) / vals.length;
-            flowRates.push(mean)
-
-        }
-
-        console.log(flowRates)
-
-        const data = {
-            labels,
-            datasets: [{
-                data: flowRates,
-                label: results[site].name,
-                fill: true,
-                backgroundColor: gradient,
-                borderColor: "#FFF",
-                pointRadius: 5,
-                pointHoverRadius: 10,
-                pointHitRadius: 15
-            }]
-        };
-
-        const config = {
-            type: 'line',
-            data: data,
-            options: {
-                responsive: true,
-                scales: {
-                    yAxes: [{
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'flow (cubic ft/sec)'
-                        }
-                    }]
+// Callback function to execute when mutations are observed
+const callback = (mutationList, observer) => {
+    for (const mutation of mutationList) {
+        // only fire if the mutation concerns "siteid"
+        if (mutation.type === "attributes" && mutation.attributeName === "siteid") {
+            let siteId = mutation.target.getAttribute("siteid")
+            //   console.log({
+            //     'retrieveData output': structuredData,
+            //     'site id': siteId,
+            //     'combined': structuredData[siteId] // a lot of siteIds have no corresponding output in structured data. maybe fixable, likely USGS problem
+            //   })
+            try {
+                if (chrt != undefined) {
+                    chrt.destroy(); // if we don't do this, the charts persist and jump back and forth on hover
+                }
+            } catch {
+                ReferenceError
+            } finally {
+                if (structuredData[siteId] != undefined) {
+                    chrt = renderChart(chartEl, structuredData[siteId]);
+                } else {
+                    console.log('7 day history unavailable for this location')
+                    //chart current values or something
                 }
             }
-        };
+            
+        }
+    }
+};
 
-        const myChart = new Chart(ctx, config)
-    });
+// Create an observer instance linked to the callback function
+const observer = new MutationObserver(callback);
 
+// Start observing the target node for configured mutations
+observer.observe(chartEl, config);
+
+// observer.disconnect();
 
 // FUNCTIONS:
 function formatDateStamp() {
@@ -197,10 +135,10 @@ function getMarkerColor(attributes) {
     } else {
         return 'red';
     }
-}
+};
 
 // pass ID to chart element
-function passID(e, chartEl=document.getElementById('line')) {
+function passID(e, chartEl = document.getElementById('line-canvas')) {
     id = e.getAttribute('siteid')
     chartEl.setAttribute('siteid', id)
     console.log(id)
@@ -232,4 +170,115 @@ function panelSelect(e) {
         state.panelOpen = true;
     }
     console.log(state)
+}
+
+function retrieveData() {
+    /*
+    Function to retrieve flow data for all stream gauges for the last 7 days, 
+    then restructure the result into an object to be parsed by the graph function 
+    Courtesy of ChatGPT.
+    */
+    const days = ['today', 'yesterday', '2daysago', '3daysago', '4daysago', '5daysago', '6daysago'];
+    const results = {};
+
+    // Create an array of promises
+    const promises = days.map((day, i) => {
+        const url = `./data/${i + 1}.json`; // eventually, manipulate this code to make actual requests
+        return fetch(url).then(response => response.json());
+    });
+
+    // Wait for all promises to resolve before continuing
+    Promise.all(promises).then(data => {
+        data.forEach(json => {
+            const timeSeries = json.value.timeSeries;
+            for (let j = 0; j < timeSeries.length; j++) {
+                const siteCode = timeSeries[j].sourceInfo.siteCode[0].value;
+                const siteName = timeSeries[j].sourceInfo.siteName;
+
+                if (!results[siteCode]) {
+                    results[siteCode] = {
+                        name: siteName,
+                        readings: {}
+                    };
+                }
+
+                const readings = timeSeries[j].values[0].value.map(v => parseFloat(v.value));
+                const index = data.indexOf(json) + 1;
+                results[siteCode].readings[index] = readings;
+            }
+        });
+
+        console.log(results);
+    }).catch(error => {
+        console.error(error);
+    });
+    return results
+}
+
+function renderChart(e, siteData) {
+    var ctx = e.getContext("2d");
+
+    // gradient fill
+    let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0.3, 'rgba(60,50,40,0.5)'); // top of chart
+    gradient.addColorStop(1, 'rgba(0,170,190,0.4)'); // bottom of chart
+
+    const labels = [
+        "last week",
+        "6 days ago",
+        "5 days ago",
+        "4 days ago",
+        "3 days ago",
+        "yesterday",
+        "today",
+    ];
+
+    let flowRates = [];
+
+    // wait for the data to finish cooking before doing any chart stuff with it
+    console.log('site data');
+    for (let i = 1; i <= 7; i++) {
+        vals = siteData["readings"][i];
+        mean = vals.reduce(
+            (acc, val) => acc + val, 0
+        ) / vals.length;
+        flowRates.push(mean)
+
+    }
+
+    console.log(flowRates)
+
+    let data = {
+        labels,
+        datasets: [{
+            data: flowRates,
+            label: siteData.name,
+            fill: true,
+            backgroundColor: gradient,
+            borderColor: "#FFF",
+            pointRadius: 5,
+            pointHoverRadius: 10,
+            pointHitRadius: -1
+        }]
+    };
+
+    let config = {
+        type: 'line',
+        data: data,
+        options: {
+            responsive: true,
+            scales: {
+                yAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'flow (cubic ft/sec)'
+                    }
+                }]
+            }
+        }
+    };
+
+    let myChart = new Chart(ctx, config)
+
+    return myChart
 }
