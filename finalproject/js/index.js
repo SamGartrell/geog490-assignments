@@ -55,10 +55,16 @@ fetch(local)
                 
                 
                 // create the Mapbox marker object and add it to the map
-                new mapboxgl.Marker({g})
+                let marker = new mapboxgl.Marker({g})
                     .setLngLat([g.lon, g.lat])
                     .addTo(map)
                     .setPopup(popup)
+                    
+                let element = marker.getElement()
+                element.setAttribute('siteid', `${g.id}`)
+                element.setAttribute(
+                    'onClick', "passID(this)"
+                )
             }
         }
         )
@@ -194,9 +200,10 @@ function getMarkerColor(attributes) {
 }
 
 // pass ID to chart element
-function getID(id, chartEl=document.getElementById('line')) {
+function passID(e, chartEl=document.getElementById('line')) {
+    id = e.getAttribute('siteid')
     chartEl.setAttribute('siteid', id)
-    console.log('yo')
+    console.log(id)
 };
 
 
