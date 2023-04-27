@@ -8,9 +8,9 @@ var map = new mapboxgl.Map({
 
 // Data for Map points:
 // actual endpoint (gets 403)
-var endpoint = `https://waterservices.usgs.gov/nwis/iv/?format=json&indent=on&stateCd=or&${formatDateStamp()}&parameterCd=00060&siteStatus=all`
+// var endpoint = `https://waterservices.usgs.gov/nwis/iv/?format=json&indent=on&stateCd=or&${formatDateStamp()}&parameterCd=00060&siteStatus=all`
 // // local file endpoint, copied from the rest API response in browser (works)
-var local = './data/data.json'
+var local = './data/0.json'
 
 // send api request
 fetch(local)
@@ -84,11 +84,6 @@ const callback = (mutationList, observer) => {
         // only fire if the mutation concerns "siteid"
         if (mutation.type === "attributes" && mutation.attributeName === "siteid") {
             let siteId = mutation.target.getAttribute("siteid")
-            //   console.log({
-            //     'retrieveData output': structuredData,
-            //     'site id': siteId,
-            //     'combined': structuredData[siteId] // a lot of siteIds have no corresponding output in structured data. maybe fixable, likely USGS problem
-            //   })
             try {
                 if (chrt != undefined) {
                     chrt.destroy(); // if we don't do this, the charts persist and jump back and forth on hover
@@ -117,13 +112,22 @@ observer.observe(chartEl, config);
 // observer.disconnect();
 
 // FUNCTIONS:
-function formatDateStamp() {
+function formatDateStamp(daysAgo, hrWindow=1) {
     // TODO: make this return an array of 7 dates, extending back in time to last week
     // TODO: integrate with requests after figuring out USGS bullshit, so that it makes 7 requests and compiles the data for each site 
-    const now = new Date().toISOString();
-    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    // should emualate something like: startDT=2023-04-20T11:18-0700&endDT=2023-04-20T12:18-0700
+    
+    // get/freeze now
+    const now = Date.now();
 
-    return `startDT=${weekAgo}&endDT=${now}`;
+    // set start date to now - (number of days ago we're targeting * day length in ms)
+    const end = new Date(now - daysAgo * 24 * 60 *60 * 1000);
+
+    // set end date to start date - number of hours of observations we want in ms
+    const start = new Date(end - hrWindow * 60 * 60 * 1000); 
+
+    // format the string like startDT=2023-04-20T11:18-0700&endDT=2023-04-20T12:18-0700
+    return `startDT=${start.toISOString()}&endDT=${end.toISOString()}`;
 }
 
 // color markers based on stream depth
@@ -183,7 +187,7 @@ function retrieveData() {
 
     // Create an array of promises
     const promises = days.map((day, i) => {
-        const url = `./data/${i + 1}.json`; // eventually, manipulate this code to make actual requests
+        const url = `./data/${i + 1}.json`; // eventually, manipulate this code to make actual requests. starting with 0 days ago (not 1, as here)
         return fetch(url).then(response => response.json());
     });
 
