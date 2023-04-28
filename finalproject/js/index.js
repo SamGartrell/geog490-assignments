@@ -8,12 +8,12 @@ var map = new mapboxgl.Map({
 
 // Data for Map points:
 // actual endpoint (gets 403)
-// var endpoint = `https://waterservices.usgs.gov/nwis/iv/?format=json&indent=on&stateCd=or&${formatDateStamp()}&parameterCd=00060&siteStatus=all`
+var endpoint = `https://waterservices.usgs.gov/nwis/iv/?format=json&indent=on&stateCd=or&${formatDateStamp(0)}&parameterCd=00060&siteStatus=active`
+console.log(endpoint)
 // // local file endpoint, copied from the rest API response in browser (works)
 var local = './data/0.json'
-
 // send api request
-fetch(local)
+fetch(endpoint)
     .then(response => response.json())
     .then(data => {
         // get data body
@@ -40,13 +40,13 @@ fetch(local)
                         'unit': gauge.variable.unit.unitcode
                     }
                 }
-
+                console.log(g)
                 let popup = new mapboxgl.Popup(
                     { closeOnClick: true, focusAfterOpen: false }
                 ).setHTML(`<h2>${g.title}</h2>
                             <p>${g.data.desc}: ${g.data.value}</p>
                             <br>
-                            <a href=https://waterdata.usgs.gov/nwis/rt>updated at ${g.data.time}</a>`
+                            <a href=https://waterdata.usgs.gov/monitoring-location/${g.id}/#parameterCode=00060&period=P7D>updated at ${g.data.time}</a>`
                 );
 
 
@@ -86,7 +86,7 @@ const callback = (mutationList, observer) => {
             let siteId = mutation.target.getAttribute("siteid")
             try {
                 if (chrt != undefined) {
-                    chrt.destroy(); // if we don't do this, the charts persist and jump back and forth on hover
+                    chrt.destroy(); // without this, the charts persist and jump back and forth on hover
                 }
             } catch {
                 ReferenceError
@@ -112,16 +112,13 @@ observer.observe(chartEl, config);
 // observer.disconnect();
 
 // FUNCTIONS:
-function formatDateStamp(daysAgo, hrWindow=1) {
-    // TODO: make this return an array of 7 dates, extending back in time to last week
-    // TODO: integrate with requests after figuring out USGS bullshit, so that it makes 7 requests and compiles the data for each site 
-    // should emualate something like: startDT=2023-04-20T11:18-0700&endDT=2023-04-20T12:18-0700
-    
-    // get/freeze now
-    const now = Date.now();
+function formatDateStamp(daysAgo, hrWindow=1) {   
+    // get/freeze now 
+    // (make it an hour ago just so data is guaranteed to have been transmitted to USGS db in last hr, if daysAgo=0)
+    const now = new Date(Date.now() - 4 * 60 * 60 * 1000);
 
     // set start date to now - (number of days ago we're targeting * day length in ms)
-    const end = new Date(now - daysAgo * 24 * 60 *60 * 1000);
+    const end = new Date(now - daysAgo * 24 * 60 * 60 * 1000);
 
     // set end date to start date - number of hours of observations we want in ms
     const start = new Date(end - hrWindow * 60 * 60 * 1000); 
@@ -212,7 +209,6 @@ function retrieveData() {
             }
         });
 
-        console.log(results);
     }).catch(error => {
         console.error(error);
     });
