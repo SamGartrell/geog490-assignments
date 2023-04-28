@@ -184,7 +184,7 @@ function retrieveData() {
 
     // Create an array of promises
     const promises = days.map((day, i) => {
-        const url = `./data/${i + 1}.json`; // eventually, manipulate this code to make actual requests. starting with 0 days ago (not 1, as here)
+        const url = `https://waterservices.usgs.gov/nwis/iv/?format=json&indent=on&stateCd=or&${formatDateStamp(i)}&parameterCd=00060&siteStatus=active`; // eventually, manipulate this code to make actual requests. starting with 0 days ago (not 1, as here)
         return fetch(url).then(response => response.json());
     });
 
