@@ -2,31 +2,34 @@ mapboxgl.accessToken = 'pk.eyJ1Ijoic2FtZ2FydHJlbGwiLCJhIjoiY2w3OWt3MW00MDNjbDN2c
 var map = new mapboxgl.Map({
     container: 'map', // pointing to the above "map" div
     style: 'mapbox://styles/samgartrell/cl7tnbdlk000215qdvkret4rv',
-    center: [-120.5542, 43.8041],
+    center: [-123.0868, 44.0521],
     zoom: 8
 });
 
 // Data for Map points:
-// actual endpoint (gets 403)
+// actual endpoint (started working...?)
 var endpoint = `https://waterservices.usgs.gov/nwis/iv/?format=json&indent=on&stateCd=or&${formatDateStamp(0)}&parameterCd=00060&siteStatus=active`
 console.log(endpoint)
 // // local file endpoint, copied from the rest API response in browser (works)
-var local = './data/0.json'
+// var local = './data/0.json'
+
 // send api request
 fetch(endpoint)
     .then(response => response.json())
     .then(data => {
+        
         // get data body
         var gauges = data.value.timeSeries;
 
         // set a counter and limit for testing
         let counter = 0;
         let limit = 999;
-        console.log('gauges:', gauges)
+        
         // iterate through locations, adding each one to the map
         gauges.forEach(function (gauge) {
             counter++;
             if (counter <= limit) {
+                
                 // make a little gauge object "g" for better readability
                 g = {
                     'lat': gauge.sourceInfo.geoLocation.geogLocation.latitude,
@@ -40,7 +43,6 @@ fetch(endpoint)
                         'unit': gauge.variable.unit.unitcode
                     }
                 }
-                console.log(g)
                 let popup = new mapboxgl.Popup(
                     { closeOnClick: true, focusAfterOpen: false }
                 ).setHTML(`<h2>${g.title}</h2>
@@ -71,6 +73,7 @@ fetch(endpoint)
 // an array of promises is also returned, in case the requests are still executing
 // eventually, put this in a timeout loop that runs every hour or something
 structuredData = retrieveData()
+console.log(structuredData)
 
 // CHART
 const chartEl = document.getElementById('line-canvas')
@@ -111,7 +114,7 @@ observer.observe(chartEl, config);
 
 // observer.disconnect();
 
-// FUNCTIONS:
+// FUNCS:
 function formatDateStamp(daysAgo, hrWindow=1) {   
     // get/freeze now 
     // (make it an hour ago just so data is guaranteed to have been transmitted to USGS db in last hr, if daysAgo=0)
@@ -179,7 +182,8 @@ function retrieveData() {
     then restructure the result into an object to be parsed by the graph function 
     Courtesy of ChatGPT.
     */
-    const days = ['today', 'yesterday', '2daysago', '3daysago', '4daysago', '5daysago', '6daysago'];
+
+    const days = ['today', 'yesterday', '2daysago', '3daysago', '4daysago', '5daysago', '6daysago']; // this code is whack
     const results = {};
 
     // Create an array of promises
@@ -235,8 +239,6 @@ function renderChart(e, siteData) {
 
     let flowRates = [];
 
-    // wait for the data to finish cooking before doing any chart stuff with it
-    console.log('site data');
     for (let i = 1; i <= 7; i++) {
         vals = siteData["readings"][i];
         mean = vals.reduce(
@@ -246,7 +248,8 @@ function renderChart(e, siteData) {
 
     }
 
-    console.log(flowRates)
+    // reverse flow rates to put the sequence of readings in chronological order
+    flowRates = flowRates.reverse()
 
     let data = {
         labels,
