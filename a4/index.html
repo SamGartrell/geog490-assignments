@@ -97,8 +97,11 @@
                     Explanation:
                     This is a 7-class orange ramp from colorbrewer.
                     Polygons with 0% renter/ownership are transparent to create an 8th class.
-                    the color ramp is linear, with equal-interval breaks.
-                    I chose equal interval because
+                    the color ramp is linear, with mostly equal-interval breaks (the final class was expanded to 85 to capture outliers).
+                    I chose this modified equal interval because, when comparing owners and renters, 
+                    the ramp can't cater too much to either distribution. I chose to create an 8th class for readings with 0%
+                    since it simplifies the visualization, clarifying that there are no recordings of that homeowner type in the area
+                    without creating another color-coded class.
                     */
                     'fill-color': [
                         "interpolate",
@@ -118,10 +121,10 @@
                         "#f16913",
                         60,
                         "#d94801",
-                        69.96,
+                        85,
                         "#8c2d04"
                     ],
-                    "fill-opacity": 0.7,
+                    "fill-opacity": 0.9,
                 }
 
             });
@@ -157,19 +160,28 @@
                 },
                 'source-layer': 'Owner-Renter-Pop-dfd5pq', // layer within tileset
                 paint: {
-                    'fill-color': ["step",
+                    'fill-color': [
+                        "interpolate",
+                        ["linear"],
                         ["get", "Rent"],
-                        "hsl(225, 100%, 97%)",
-                        16.81,
-                        "hsl(203, 47%, 82%)",
-                        22.338,
-                        "hsl(202, 57%, 63%)",
-                        27.32,
-                        "#3182bd",
-                        31.942,
-                        "hsl(210, 90%, 32%)"
+                        0,
+                        "rgba(0, 0, 0, 0)",
+                        10,
+                        "#feedde",
+                        20,
+                        "#fdd0a2",
+                        30,
+                        "#fdae6b",
+                        40,
+                        "#fd8d3c",
+                        50,
+                        "#f16913",
+                        60,
+                        "#d94801",
+                        85,
+                        "#8c2d04"
                     ],
-                    "fill-opacity": 0.7,
+                    "fill-opacity": .9,
                 }
 
             });
