@@ -3,7 +3,7 @@
 "scope" : "javax.xml.bind.JAXBElement$GlobalScope",
 "value" : {
   "queryInfo" : {
-    "queryURL" : "http://waterservices.usgs.gov/nwis/iv/format=json&indent=on&stateCd=or&startDT=2023-04-27T20:47:24.712Z&endDT=2023-04-27T21:47:24.712Z&parameterCd=00060,00065&siteStatus=active",
+    "queryURL" : "http://waterservices.usgs.gov/nwis/iv/format=json&indent=on&stateCd=or&startDT=2023-04-27T20:47:24.712Z&endDT=2023-04-27T21:47:24.712Z&parameterCd=00060&siteStatus=active",
     "criteria" : {
       "locationParam" : "[]",
       "variableParam" : "[00060, 00065]",

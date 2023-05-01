@@ -5,18 +5,27 @@
     <meta charset='utf-8' />
     <title>Swipe between maps</title>
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
-    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.js'></script>
-    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.css' rel='stylesheet' />
-
-    <!-- JS and CSS for the swipe plugin -->
-    <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.js'></script>
-    <link rel='stylesheet'
-        href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.css'
-        type='text/css' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.4.1/mapbox-gl.css' rel='stylesheet' />
     <style>
         body {
             margin: 0;
             padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <style>
+        body {
             overflow: hidden;
         }
 
@@ -28,6 +37,7 @@
             user-select: none;
         }
 
+
         .map {
             position: absolute;
             top: 0;
@@ -35,63 +45,86 @@
             width: 100%;
         }
     </style>
-</head>
 
-<body>
-    <div id="comparison-container">
-        <div id='owners' class='map'></div> <!-- div for owners map div -->
-        <div id='renters' class='map'></div> <!--  div for renters map div -->
-    </div>
+    <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.1.0/mapbox-gl-compare.js'></script>
+    <link rel='stylesheet'
+        href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.1.0/mapbox-gl-compare.css'
+        type='text/css' />
+
+    <div id='owners' class='map'></div>
+    <div id='renters' class='map'></div>
+
 
     <script>
-        let lng = -122.6788;
-        let lat = 45.5212;
-
+        // access mapbox API
         mapboxgl.accessToken = 'pk.eyJ1Ijoic2FtZ2FydHJlbGwiLCJhIjoiY2w3OWt3MW00MDNjbDN2cGRpc20ya3JnbyJ9.6t2ISNlyP1BvBmkSH2Ks_Q';
 
-        // SHARED VARIABLE between both maps
+        // Set up two Map instances and a Compare instance to unite them
+        var ownerMap = new mapboxgl.Map({
+            container: 'owners', // owners map div 
+            style: 'mapbox://styles/mapbox/dark-v10', // Mapbox dark style 
+            center: [-122.67745971679688, 45.52751668442124], // change the long/lat coordinates to -122.67745971679688, 45.52751668442124],
+            zoom: 10 // change the zoom level to 10 
+        });
+
+        var renterMap = new mapboxgl.Map({
+            container: 'renters', // owners map div 
+            style: 'mapbox://styles/mapbox/dark-v10', // Mapbox dark style 
+            center: [-122.67745971679688, 45.52751668442124], // change the long/lat coordinates to -122.67745971679688, 45.52751668442124],
+            zoom: 10 // change the zoom level to 10 
+        });
+
+        var map = new mapboxgl.Compare(ownerMap, renterMap, {});
         // Create a popup, but don't add it to the map yet.
         var popup = new mapboxgl.Popup({
             closeButton: false,
             closeOnClick: false
         });
 
-        // OWNER MAP CONFIG
-        var ownerMap = new mapboxgl.Map({
-            container: 'owners', // owners map div 
-            style: 'mapbox://styles/mapbox/dark-v10', // Mapbox dark style 
-            center: [lng, lat],
-            zoom: 10
-        });
-
-        // adding layers and styling on load
+        // configure owner map:
         ownerMap.on('load', function () {
             ownerMap.addLayer({
                 id: 'Owner Data',
                 type: "fill",
                 source: {
                     type: 'vector',
-                    url: 'mapbox://samgartrell.1t2z36fd'  //input your tileset ID url e.g. 'mapbox://jomerson.6ykhlovc' 
+                    url: 'mapbox://samgartrell.1t2z36fd' // mapbox tileset
                 },
-                'source-layer': 'Owner-Renter-Pop-dfd5pq', //input your source layer name e.g. 'Owner-Renter-Pop-ca08iw'
+                'source-layer': 'Owner-Renter-Pop-dfd5pq', // layer within tileset
                 paint: {
-                    'fill-color':
-                        ["step",
-                            ["get", "Own"],
-                            "hsl(225, 100%, 97%)",
-                            17.0,
-                            "hsl(203, 47%, 82%)",
-                            22.0,
-                            "hsl(202, 57%, 63%)",
-                            27.0,
-                            "#3182bd",
-                            32.0,
-                            "hsl(210, 90%, 32%)"
-                        ],
-                    "fill-opacity": 0.7
+                    // apply classified color scheme
+                    /*
+                    Explanation:
+                    This is a 7-class orange ramp from colorbrewer.
+                    Polygons with 0% renter/ownership are transparent to create an 8th class.
+                    the color ramp is linear, with equal-interval breaks.
+                    I chose equal interval because
+                    */
+                    'fill-color': [
+                        "interpolate",
+                        ["linear"],
+                        ["get", "Own"],
+                        0,
+                        "rgba(0, 0, 0, 0)",
+                        10,
+                        "#feedde",
+                        20,
+                        "#fdd0a2",
+                        30,
+                        "#fdae6b",
+                        40,
+                        "#fd8d3c",
+                        50,
+                        "#f16913",
+                        60,
+                        "#d94801",
+                        69.96,
+                        "#8c2d04"
+                    ],
+                    "fill-opacity": 0.7,
                 }
-            });
 
+            });
             ownerMap.on('mousemove', 'Owner Data', function (e) {
 
                 // Change the cursor style as a UI indicator.
@@ -99,11 +132,12 @@
 
                 var coordinates = e.lngLat;
                 var description = e.features[0].properties.Own;
+                var population = e.features[0].properties.Total_Pop;
 
                 // Populate the popup and set its coordinates
                 // based on the feature found.
                 popup.setLngLat(coordinates)
-                    .setHTML(description + "% of surveyed residents in this block group OWN their homes")
+                    .setHTML(description + "% of " + population + " surveyed individuals OWN their homes here")
                     .addTo(ownerMap);
             });
 
@@ -113,42 +147,32 @@
             });
         });
 
-
-        // RENTERS MAP CONFIG
-        var renterMap = new mapboxgl.Map({
-            container: 'renters', // owners map div 
-            style: 'mapbox://styles/mapbox/dark-v10', // Mapbox light style so we can observe the swipe
-            center: [lng, lat],// Use the same center as your other map so that they are perfectly aligned
-            zoom: 10
-        });
-
-        // adding layers/styling on load
         renterMap.on('load', function () {
             renterMap.addLayer({
-                id: 'Owner Data',
+                id: 'Renter Data',
                 type: "fill",
                 source: {
                     type: 'vector',
-                    url: 'mapbox://samgartrell.1t2z36fd'  //input your tileset ID url e.g. 'mapbox://jomerson.6ykhlovc' 
+                    url: 'mapbox://samgartrell.1t2z36fd' // mapbox tileset
                 },
-                'source-layer': 'Owner-Renter-Pop-dfd5pq', //input your source layer name e.g. 'Owner-Renter-Pop-ca08iw'
+                'source-layer': 'Owner-Renter-Pop-dfd5pq', // layer within tileset
                 paint: {
-                    'fill-color':
-                        ["step",
-                            ["get", "Rent"],
-                            "hsl(225, 100%, 97%)",
-                            17.0,
-                            "hsl(203, 47%, 82%)",
-                            22.0,
-                            "hsl(202, 57%, 63%)",
-                            27.0,
-                            "#3182bd",
-                            32.0,
-                            "hsl(210, 90%, 32%)"],
-                    "fill-opacity": 0.7
+                    'fill-color': ["step",
+                        ["get", "Rent"],
+                        "hsl(225, 100%, 97%)",
+                        16.81,
+                        "hsl(203, 47%, 82%)",
+                        22.338,
+                        "hsl(202, 57%, 63%)",
+                        27.32,
+                        "#3182bd",
+                        31.942,
+                        "hsl(210, 90%, 32%)"
+                    ],
+                    "fill-opacity": 0.7,
                 }
-            });
 
+            });
             renterMap.on('mousemove', 'Renter Data', function (e) {
 
                 // Change the cursor style as a UI indicator.
@@ -156,11 +180,13 @@
 
                 var coordinates = e.lngLat;
                 var description = e.features[0].properties.Rent;
+                var population = e.features[0].properties.Total_Pop;
+
 
                 // Populate the popup and set its coordinates
                 // based on the feature found.
                 popup.setLngLat(coordinates)
-                    .setHTML(description + "% of surveyed residents in this block group RENT their homes")
+                    .setHTML(description + "% of " + population + " surveyed individuals RENT their homes here")
                     .addTo(renterMap);
             });
 
@@ -170,13 +196,8 @@
             });
         });
 
-        // A selector or reference to HTML element
-        var container = '#comparison-container';
-
-        var map = new mapboxgl.Compare(ownerMap, renterMap, container, {
-        });
     </script>
 
 </body>
 
-</html>
+</html>s
