@@ -1,0 +1,3 @@
+[submodule "responsive-webmap"]
+	path = responsive-webmap
+	url = ./responsive-webmap
