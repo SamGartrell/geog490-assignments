@@ -17,19 +17,19 @@ console.log(endpoint)
 fetch(endpoint)
     .then(response => response.json())
     .then(data => {
-        
+
         // get data body
         var gauges = data.value.timeSeries;
 
         // set a counter and limit for testing
         let counter = 0;
         let limit = 999;
-        
+
         // iterate through locations, adding each one to the map
         gauges.forEach(function (gauge) {
             counter++;
             if (counter <= limit) {
-                
+
                 // make a little gauge object "g" for better readability
                 g = {
                     'lat': gauge.sourceInfo.geoLocation.geogLocation.latitude,
@@ -42,7 +42,9 @@ fetch(endpoint)
                         'desc': gauge.variable.variableDescription,
                         'unit': gauge.variable.unit.unitcode
                     }
-                }
+                };
+
+                // create a popup
                 let popup = new mapboxgl.Popup(
                     { closeOnClick: true, focusAfterOpen: false }
                 ).setHTML(`<h2>${g.title}</h2>
@@ -51,9 +53,16 @@ fetch(endpoint)
                             <a href=https://waterdata.usgs.gov/monitoring-location/${g.id}/#parameterCode=00060&period=P7D>updated at ${g.data.time}</a>`
                 );
 
+                // create a DOM element for each marker (this is how icons are styled)
+                const el = document.createElement('div');
+                el.className = 'marker';
+                el.style.backgroundImage = `url(./img/semi.svg)`;
+                el.style.width = `20px`;
+                el.style.height = `20px`;
+                el.style.backgroundSize = '100%';
 
                 // create the Mapbox marker object and add it to the map
-                let marker = new mapboxgl.Marker({ g })
+                let marker = new mapboxgl.Marker(el)
                     .setLngLat([g.lon, g.lat])
                     .addTo(map)
                     .setPopup(popup)
@@ -101,7 +110,7 @@ const callback = (mutationList, observer) => {
                     //chart current values or something
                 }
             }
-            
+
         }
     }
 };
@@ -115,7 +124,7 @@ observer.observe(chartEl, config);
 // observer.disconnect();
 
 // FUNCS:
-function formatDateStamp(daysAgo, hrWindow=1) {   
+function formatDateStamp(daysAgo, hrWindow = 1) {
     // get/freeze now 
     // (make it an hour ago just so data is guaranteed to have been transmitted to USGS db in last hr, if daysAgo=0)
     const now = new Date(Date.now() - 4 * 60 * 60 * 1000);
@@ -124,7 +133,7 @@ function formatDateStamp(daysAgo, hrWindow=1) {
     const end = new Date(now - daysAgo * 24 * 60 * 60 * 1000);
 
     // set end date to start date - number of hours of observations we want in ms
-    const start = new Date(end - hrWindow * 60 * 60 * 1000); 
+    const start = new Date(end - hrWindow * 60 * 60 * 1000);
 
     // format the string like startDT=2023-04-20T11:18-0700&endDT=2023-04-20T12:18-0700
     return `startDT=${start.toISOString()}&endDT=${end.toISOString()}`;
@@ -285,3 +294,6 @@ function renderChart(e, siteData) {
 
     return myChart
 }
+
+
+// marker icon
