@@ -34,7 +34,7 @@ fetch(endpoint)
                 g = {
                     'lat': gauge.sourceInfo.geoLocation.geogLocation.latitude,
                     'lon': gauge.sourceInfo.geoLocation.geogLocation.longitude,
-                    'title': gauge.sourceInfo.siteName,
+                    'title': formatTitleCase(gauge.sourceInfo.siteName),
                     'id': gauge.sourceInfo.siteCode[0].value,
                     'data': {
                         'value': gauge.values[0].value[0].value,
@@ -45,13 +45,14 @@ fetch(endpoint)
                 };
 
                 // create a popup
-                let popup = new mapboxgl.Popup(
-                    { closeOnClick: true, focusAfterOpen: false }
-                ).setHTML(`<h2>${g.title}</h2>
-                            <p>${g.data.desc}: ${g.data.value}</p>
-                            <br>
-                            <a href=https://waterdata.usgs.gov/monitoring-location/${g.id}/#parameterCode=00060&period=P7D>updated at ${g.data.time}</a>`
-                );
+                // TODO: put info like this next to the graph and think of a cool css way to have the cards balanced on mobile etc
+                // let popup = new mapboxgl.Popup(
+                //     { closeOnClick: true, focusAfterOpen: false }
+                // ).setHTML(`<h2>${g.title}</h2>
+                //             <p>${g.data.desc}: ${g.data.value}</p>
+                //             <br>
+                //             <a href=https://waterdata.usgs.gov/monitoring-location/${g.id}/#parameterCode=00060&period=P7D>updated at ${g.data.time}</a>`
+                // );
 
                 // create a DOM element for each marker (this is how icons are styled)
                 const el = document.createElement('div');
@@ -65,7 +66,7 @@ fetch(endpoint)
                 let marker = new mapboxgl.Marker(el)
                     .setLngLat([g.lon, g.lat])
                     .addTo(map)
-                    .setPopup(popup)
+                    // .setPopup(popup)
 
                 let element = marker.getElement()
                 element.setAttribute('siteid', `${g.id}`)
@@ -229,12 +230,20 @@ function retrieveData() {
 }
 
 function renderChart(e, siteData) {
-    var ctx = e.getContext("2d");
+    const colors = {
+        'neutral': {
+            'light': 'rgba(255, 255, 255, 0.1)',
+            'dark': 'rgb(30,33,40)',
+            'bright': 'rgba(255, 255, 255, .7)'
+        },
+        'theme': {
+            'blue': '#1CD6D9',
+            'mutedBlue': 'rgba(28,214,217, .1)'
+        }
+    }
 
-    // gradient fill
-    let gradient = ctx.createLinearGradient(0, 0, 0, 400);
-    gradient.addColorStop(0.3, 'rgba(60,50,40,0.5)'); // top of chart
-    gradient.addColorStop(1, 'rgba(0,170,190,0.4)'); // bottom of chart
+    // initialize canvas element for chart.js
+    var ctx = e.getContext("2d");
 
     const labels = [
         "last week",
@@ -253,7 +262,9 @@ function renderChart(e, siteData) {
         mean = vals.reduce(
             (acc, val) => acc + val, 0
         ) / vals.length;
-        flowRates.push(mean)
+        flowRates.push(
+            Math.round(mean, 0),
+        )
 
     }
 
@@ -264,13 +275,14 @@ function renderChart(e, siteData) {
         labels,
         datasets: [{
             data: flowRates,
-            label: siteData.name,
+            label: formatTitleCase(siteData.name),
             fill: true,
-            backgroundColor: gradient,
-            borderColor: "#FFF",
+            backgroundColor: colors.theme.mutedBlue,
+            borderColor: colors.theme.blue,
             pointRadius: 5,
             pointHoverRadius: 10,
-            pointHitRadius: -1
+            pointHitRadius: -1,
+
         }]
     };
 
@@ -279,13 +291,35 @@ function renderChart(e, siteData) {
         data: data,
         options: {
             responsive: true,
+            legend: {
+                display: false
+            },
             scales: {
                 yAxes: [{
                     scaleLabel: {
                         display: true,
                         labelString: 'flow (cubic ft/sec)'
+                    },
+                    ticks: {
+                        fontColor: colors.neutral.bright
+                    },
+                    gridLines: {
+                        color: colors.neutral.light
+                    }
+                }],
+                xAxes: [{
+                    ticks: {
+                        fontColor: colors.neutral.bright
+                    },
+                    gridLines: {
+                        color: colors.neutral.light
                     }
                 }]
+            },
+            title: {
+                display: true,
+                text: `${formatTitleCase(siteData.name)} | ${flowRates[6]} cf/s`,
+                fontColor: colors.neutral.bright
             }
         }
     };
@@ -296,4 +330,27 @@ function renderChart(e, siteData) {
 }
 
 
-// marker icon
+function formatTitleCase(str) {
+    // this function makes titles more pretty by modifying the case
+    const lowerCaseWords = ["near", "at", "in", "above", "below", "by"];
+    const words = str.toLowerCase().split(" ");
+
+    for (let i = 0; i < words.length; i++) {
+        const word = words[i];
+        if (!lowerCaseWords.includes(word)) {
+            words[i] = word.charAt(0).toUpperCase() + word.slice(1);
+        } else {
+            words[i] = word.toLowerCase();
+        }
+    }
+
+    const result = words.join(" ");
+
+    if (result.toLowerCase().endsWith(", or")) {
+        return result.slice(0, -4);
+    } else if (result.toLowerCase().endsWith(",or")) {
+
+    } else {
+        return result
+    }
+}

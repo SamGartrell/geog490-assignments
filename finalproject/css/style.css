@@ -40,6 +40,7 @@ body {
 }
 
 .menu {
+    background-color: rgba(0, 128, 128, 0);
     display: flex;
     z-index: 9999;
     width: 100%;
@@ -51,6 +52,7 @@ body {
   }
 
   .media-box {
+    background-color: rgba(137, 43, 226, 0);
     display: flex;
     z-index: 9999;
     justify-content: center;
@@ -63,7 +65,9 @@ body {
   }
   
   .chart {
-    background-color: antiquewhite;
+    background-color: rgba(30, 33, 40, 1);
+    outline: 4px solid rgba(255, 255, 255, 0.4);
+    outline-width: 1px;
     z-index: 10000;
     border-radius: 2rem;
     margin: 20px;
