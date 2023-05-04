@@ -17,15 +17,14 @@
 <body>
 
     <div id='map'></div>
-    <span class="media-box">
+    <span class="media-box" id="media-box">
         <div class="chart" id="line">
             <canvas id="line-canvas"></canvas>
         </div>
     </span>
     <span class="menu">
-        <!-- HTML !-->
-        <button class="button-74" role="button">
-            view graph
+        <button class="graph-open-button" id='toggleGraph' role="button" onclick="toggle('media-box')">
+            graph
         </button>
     </span>
     <!-- chart.js source code -->

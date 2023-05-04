@@ -29,50 +29,53 @@ fetch(endpoint)
         gauges.forEach(function (gauge) {
             counter++;
             if (counter <= limit) {
+                try {
+                    // make a little gauge object "g" for better readability
+                    g = {
+                        'lat': gauge.sourceInfo.geoLocation.geogLocation.latitude,
+                        'lon': gauge.sourceInfo.geoLocation.geogLocation.longitude,
+                        'title': formatTitleCase(gauge.sourceInfo.siteName),
+                        'id': gauge.sourceInfo.siteCode[0].value,
+                        'data': {
+                            'value': gauge.values[0].value[0].value,
+                            'time': gauge.values[0].value[0].dateTime,
+                            'desc': gauge.variable.variableDescription,
+                            'unit': gauge.variable.unit.unitcode
+                        }
+                    };
 
-                // make a little gauge object "g" for better readability
-                g = {
-                    'lat': gauge.sourceInfo.geoLocation.geogLocation.latitude,
-                    'lon': gauge.sourceInfo.geoLocation.geogLocation.longitude,
-                    'title': formatTitleCase(gauge.sourceInfo.siteName),
-                    'id': gauge.sourceInfo.siteCode[0].value,
-                    'data': {
-                        'value': gauge.values[0].value[0].value,
-                        'time': gauge.values[0].value[0].dateTime,
-                        'desc': gauge.variable.variableDescription,
-                        'unit': gauge.variable.unit.unitcode
-                    }
-                };
+                    // create a popup
+                    // TODO: put info like this next to the graph and think of a cool css way to have the cards balanced on mobile etc
+                    // let popup = new mapboxgl.Popup(
+                    //     { closeOnClick: true, focusAfterOpen: false }
+                    // ).setHTML(`<h2>${g.title}</h2>
+                    //             <p>${g.data.desc}: ${g.data.value}</p>
+                    //             <br>
+                    //             <a href=https://waterdata.usgs.gov/monitoring-location/${g.id}/#parameterCode=00060&period=P7D>updated at ${g.data.time}</a>`
+                    // );
 
-                // create a popup
-                // TODO: put info like this next to the graph and think of a cool css way to have the cards balanced on mobile etc
-                // let popup = new mapboxgl.Popup(
-                //     { closeOnClick: true, focusAfterOpen: false }
-                // ).setHTML(`<h2>${g.title}</h2>
-                //             <p>${g.data.desc}: ${g.data.value}</p>
-                //             <br>
-                //             <a href=https://waterdata.usgs.gov/monitoring-location/${g.id}/#parameterCode=00060&period=P7D>updated at ${g.data.time}</a>`
-                // );
+                    // create a DOM element for each marker (this is how icons are styled)
+                    const el = document.createElement('div');
+                    el.className = 'marker';
+                    el.style.backgroundImage = `url(./img/semi.svg)`;
+                    el.style.width = `20px`;
+                    el.style.height = `20px`;
+                    el.style.backgroundSize = '100%';
 
-                // create a DOM element for each marker (this is how icons are styled)
-                const el = document.createElement('div');
-                el.className = 'marker';
-                el.style.backgroundImage = `url(./img/semi.svg)`;
-                el.style.width = `20px`;
-                el.style.height = `20px`;
-                el.style.backgroundSize = '100%';
-
-                // create the Mapbox marker object and add it to the map
-                let marker = new mapboxgl.Marker(el)
-                    .setLngLat([g.lon, g.lat])
-                    .addTo(map)
+                    // create the Mapbox marker object and add it to the map
+                    let marker = new mapboxgl.Marker(el)
+                        .setLngLat([g.lon, g.lat])
+                        .addTo(map)
                     // .setPopup(popup)
 
-                let element = marker.getElement()
-                element.setAttribute('siteid', `${g.id}`)
-                element.setAttribute(
-                    'onClick', "passID(this)"
-                )
+                    let element = marker.getElement()
+                    element.setAttribute('siteid', `${g.id}`)
+                    element.setAttribute(
+                        'onClick', "passID(this)"
+                    );
+                } catch (typeError) {
+                    console.log(`yielded typeerror:`, gauge, typeError)
+                }
             }
         }
         )
@@ -82,7 +85,7 @@ fetch(endpoint)
 // retrieve data for last 7 days and restructure to be ingestible by renderChart()
 // an array of promises is also returned, in case the requests are still executing
 // eventually, put this in a timeout loop that runs every hour or something
-structuredData = retrieveData()
+const structuredData = retrieveData()
 console.log(structuredData)
 
 // CHART
@@ -105,7 +108,7 @@ const callback = (mutationList, observer) => {
                 ReferenceError
             } finally {
                 if (structuredData[siteId] != undefined) {
-                    chrt = renderChart(chartEl, structuredData[siteId]);
+                    chrt = renderChart(chartEl, structuredData[siteId], autoShow = true);
                 } else {
                     console.log('7 day history unavailable for this location')
                     //chart current values or something
@@ -158,34 +161,6 @@ function passID(e, chartEl = document.getElementById('line-canvas')) {
     console.log(id)
 };
 
-
-// panel selection function. opens or closes the panel (manipulates css height prop) depending on its current state, when clicked.
-// changes the icon! points the glyph at one of two chevrons
-function panelSelect(e) {
-    console.log(e) //note that "e" represents the 
-    //               ELEMENT in which this function was called, 
-    //               since we put "this" inside the () when
-    //               calling the funciton
-    if (state.panelOpen) {
-        document.getElementById('chartPanel').style.height = '40px';
-        document.getElementById('chartPanel').style.width = '40px';
-        document.getElementById('chartPanel').style.bottom = '5%';
-        document.getElementById('glyph').className = "chevron glyphicon glyphicon-chevron-up";
-        document.getElementById('closer').style.height = "0px";
-        document.getElementById('closer').style.width = "0px";
-        state.panelOpen = false;
-    } else {
-        document.getElementById('chartPanel').style.height = '250px';
-        document.getElementById('chartPanel').style.width = '90%';
-        document.getElementById('chartPanel').style.bottom = '10%';
-        document.getElementById('glyph').className = "chevron glyphicon glyphicon-chevron-down";
-        document.getElementById('closer').style.height = "26px";
-        document.getElementById('closer').style.width = "26px";
-        state.panelOpen = true;
-    }
-    console.log(state)
-}
-
 function retrieveData() {
     /*
     Function to retrieve flow data for all stream gauges for the last 7 days, 
@@ -229,7 +204,12 @@ function retrieveData() {
     return results
 }
 
-function renderChart(e, siteData) {
+function renderChart(e, siteData, autoShow = false) {
+    if (autoShow) {
+        // automatically show the graph when a gauge is clicked
+        e.parentElement.parentElement.style.visibility = 'visible'
+    }; //WHY DOESN"T THIS WORKKKKKKKK
+
     const colors = {
         'neutral': {
             'light': 'rgba(255, 255, 255, 0.1)',
@@ -354,3 +334,25 @@ function formatTitleCase(str) {
         return result
     }
 }
+
+function toggle(elId, openState=null) {
+    // toggles visibility style prop of an element identified by elId
+    // openState optionally updates a JS variable to track viz status
+    el = document.getElementById(elId)
+    if (el.style.visibility == 'collapse') {
+        el.style.visibility = 'visible'
+        if (state) {
+            openState = true
+            return state
+        }
+    } else if (el.style.visibility = 'visible') {
+        el.style.visibility = 'collapse'
+        if (state) {
+            openState = false
+            return openState
+        }
+    } else {
+        console.log('WHAT')
+    }
+
+};
