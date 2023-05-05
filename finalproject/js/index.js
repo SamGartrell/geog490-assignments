@@ -205,12 +205,16 @@ function retrieveData() {
     return results
 }
 
-function renderChart(e, siteData, autoShow = false) {
+function renderChart(e, siteData, autoShow = false, btn=document.getElementById('toggleGraph')) {
     if (autoShow) {
         // automatically show the graph when a gauge is clicked
         e.parentElement.parentElement.style.visibility = 'visible'
         e.parentElement.parentElement.style.opacity = '1'
-        openState = true
+        
+        // update button display
+        btn.style.visibility = 'visible'
+        btn.style.width = '5vh'
+        btn.innerHTML = '<p class="x">×</p>'
     };
 
     const colors = {
@@ -338,13 +342,15 @@ function formatTitleCase(str) {
     }
 }
 
-function toggleGraph(graphId, buttonId, openState=null) {
+function toggle(graphId, buttonId, openState=null) {
     // toggles visibility style prop of an element identified by graphId
     // openState optionally updates a JS variable to track viz status
     el = document.getElementById(graphId)
+    bt = document.getElementById(buttonId)
 
     // if the graph is currently hidden...
     if (el.style.opacity != '1') {
+
         // reveal graph
         el.style.visibility = 'visible'
         
@@ -352,11 +358,16 @@ function toggleGraph(graphId, buttonId, openState=null) {
         el.style.opacity = '1'
 
         // update button display
-        //TODO
+        bt.style.width = '5vh'
+        bt.innerHTML = '<p class="x">×</p>'
 
     // otherwise...
     } else if (el.style.opacity != '0') {
         el.style.opacity = '0'
+
+        bt.style.width = '20vw'
+        bt.innerHTML = '<p>view graph</p>'
+        bt.style.visibility = 'visible'
 
         //ensure the opacity fade ends before the visibility changes 
         setTimeout(
@@ -372,16 +383,3 @@ function toggleGraph(graphId, buttonId, openState=null) {
     }
 
 };
-
-function updateButton(elId, openState=false) {
-    el = document.getElementById(elId);
-    if (openState) {
-        el.style.width = '5vh'
-        el.innerHTML = 'X'
-
-    } else {
-        el.style.width = '20vw'
-        el.innerHTML = 'view graph'
-
-    }
-}

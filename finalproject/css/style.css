@@ -3,6 +3,19 @@ body {
     padding: 0;
 }
 
+p {
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    color: #FFF;
+    margin: auto;
+}
+
+.x {
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    color: #FFF;
+    margin: auto;
+    font-size: 20pt;
+}
+
 #map {
     position: absolute;
     top: 0;
@@ -16,7 +29,8 @@ body {
     background-color: rgba(30, 33, 40, 1);
     border-color: rgba(255,255,255,0.4);
     width: 20vw;
-    transition: width 1s;
+    visibility: hidden; /* this changes when a chart is rendered and a button is necessary */
+    transition: width .3s;
     height: 5vh;
     border-radius: 2.5vh;
     text-align: center;
@@ -36,9 +50,9 @@ body {
 
   .media-box {
     background-color: rgba(137, 43, 226, 0);
-    /* visibility: collapse; */
+    visibility: collapse;
     opacity: 0;
-    transition: opacity 1s;
+    transition: opacity 0.3s;
     display: flex;
     z-index: 9999;
     justify-content: center;
