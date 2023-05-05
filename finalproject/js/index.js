@@ -109,6 +109,7 @@ const callback = (mutationList, observer) => {
             } finally {
                 if (structuredData[siteId] != undefined) {
                     chrt = renderChart(chartEl, structuredData[siteId], autoShow = true);
+
                 } else {
                     console.log('7 day history unavailable for this location')
                     //chart current values or something
@@ -208,7 +209,9 @@ function renderChart(e, siteData, autoShow = false) {
     if (autoShow) {
         // automatically show the graph when a gauge is clicked
         e.parentElement.parentElement.style.visibility = 'visible'
-    }; //WHY DOESN"T THIS WORKKKKKKKK
+        e.parentElement.parentElement.style.opacity = '1'
+        openState = true
+    };
 
     const colors = {
         'neutral': {
@@ -335,19 +338,32 @@ function formatTitleCase(str) {
     }
 }
 
-function toggle(elId, openState=null) {
-    // toggles visibility style prop of an element identified by elId
+function toggleGraph(graphId, buttonId, openState=null) {
+    // toggles visibility style prop of an element identified by graphId
     // openState optionally updates a JS variable to track viz status
-    el = document.getElementById(elId)
-    if (el.style.visibility == 'collapse') {
+    el = document.getElementById(graphId)
+
+    // if the graph is currently hidden...
+    if (el.style.opacity != '1') {
+        // reveal graph
         el.style.visibility = 'visible'
-        if (state) {
-            openState = true
-            return state
-        }
-    } else if (el.style.visibility = 'visible') {
-        el.style.visibility = 'collapse'
-        if (state) {
+        
+        // update its opacity
+        el.style.opacity = '1'
+
+        // update button display
+        //TODO
+
+    // otherwise...
+    } else if (el.style.opacity != '0') {
+        el.style.opacity = '0'
+
+        //ensure the opacity fade ends before the visibility changes 
+        setTimeout(
+            () => { el.style.visibility = 'hidden'; }, 300
+            )
+        
+        if (openState) {
             openState = false
             return openState
         }
@@ -356,3 +372,16 @@ function toggle(elId, openState=null) {
     }
 
 };
+
+function updateButton(elId, openState=false) {
+    el = document.getElementById(elId);
+    if (openState) {
+        el.style.width = '5vh'
+        el.innerHTML = 'X'
+
+    } else {
+        el.style.width = '20vw'
+        el.innerHTML = 'view graph'
+
+    }
+}

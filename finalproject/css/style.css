@@ -1,31 +1,3 @@
-#header {
-    background-color: pink;
-    color: white;
-    padding: 3rem;
-    z-index: 999999999;
-    position: absolute;
-    background: url(../img/trout.jpg);
-    background-repeat: no-repeat;
-    background-size: auto;
-    border-radius: 2rem;
-    margin: 20px;
-    text-shadow: -1px 1px 0 #000,
-        1px 1px 0 #000,
-        1px -1px 0 #000,
-        -1px -1px 0 #000;
-    font: 'Garamond'
-}
-
-/* style for heading level 4 tags */
-h4 {
-    color: white;
-    margin-left: 10px;
-}
-
-h2 {
-    font-size: 20pt
-}
-
 body {
     margin: 0;
     padding: 0;
@@ -37,6 +9,17 @@ body {
     bottom: 0;
     width: 100%;
     z-index: 1;
+}
+
+#toggleGraph {
+    outline: white;
+    background-color: rgba(30, 33, 40, 1);
+    border-color: rgba(255,255,255,0.4);
+    width: 20vw;
+    transition: width 1s;
+    height: 5vh;
+    border-radius: 2.5vh;
+    text-align: center;
 }
 
 .menu {
@@ -53,7 +36,9 @@ body {
 
   .media-box {
     background-color: rgba(137, 43, 226, 0);
-    visibility: collapse;
+    /* visibility: collapse; */
+    opacity: 0;
+    transition: opacity 1s;
     display: flex;
     z-index: 9999;
     justify-content: center;
