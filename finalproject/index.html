@@ -17,14 +17,21 @@
 <body>
 
     <div id='map'></div>
-    <span class="media-box" id="media-box">
+    <div class="media-box" id="media-box">
         <div class="chart" id="line">
             <canvas id="line-canvas"></canvas>
         </div>
-    </span>
+    </div> <!-- SPAN is probably why the chart is whack... -->
     <span class="menu">
-        <button class="graph-open-button" id='toggleGraph' role="button" onclick="toggle('media-box', 'toggleGraph')">
+        <!-- button for opening/closing flow graph -->
+        <button id='toggleGraph' role="button" onclick="toggle('media-box', 'toggleGraph')">
             graph
+        </button>
+
+        <!-- button for toggling info panel -->
+        <!-- still needs to be hooked up; other functions need to be pointed higher in DOM tree to expose .media-box-->
+        <button id='toggleInfo' role="button" onclick="toggle('media-box', 'toggleInfo')"> 
+            info
         </button>
     </span>
     <!-- chart.js source code -->

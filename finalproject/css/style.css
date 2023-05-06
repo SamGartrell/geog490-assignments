@@ -9,6 +9,16 @@ p {
     margin: auto;
 }
 
+button {
+    outline: white;
+    background-color: rgba(30, 33, 40, 1);
+    border-color: rgba(255,255,255,0.4);
+    border-radius: 2.5vh;
+    height: 5vh;
+    display: block;
+    margin: 1vw;
+}
+
 .x {
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
     color: #FFF;
@@ -25,15 +35,16 @@ p {
 }
 
 #toggleGraph {
-    outline: white;
-    background-color: rgba(30, 33, 40, 1);
-    border-color: rgba(255,255,255,0.4);
     width: 20vw;
-    visibility: hidden; /* this changes when a chart is rendered and a button is necessary */
+    display: none; /* this changes when a chart is rendered and a button is necessary */
     transition: width .3s;
-    height: 5vh;
-    border-radius: 2.5vh;
-    display: block;
+}
+
+#toggleInfo {
+    width: 20vw;
+    /* visibility: hidden; this changes when a chart is rendered and a button is necessary */
+    display: none;
+    transition: width .3s;
 }
 
 .menu {
@@ -50,10 +61,9 @@ p {
 
   .media-box {
     background-color: rgba(137, 43, 226, 0);
-    visibility: collapse;
     opacity: 0;
     transition: opacity 0.3s;
-    display: flex;
+    display: none;
     z-index: 9999;
     justify-content: center;
     align-items: center;

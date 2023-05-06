@@ -208,11 +208,11 @@ function retrieveData() {
 function renderChart(e, siteData, autoShow = false, btn=document.getElementById('toggleGraph')) {
     if (autoShow) {
         // automatically show the graph when a gauge is clicked
-        e.parentElement.parentElement.style.visibility = 'visible'
+        e.parentElement.parentElement.style.display = 'block'
         e.parentElement.parentElement.style.opacity = '1'
         
         // update button display
-        btn.style.visibility = 'visible'
+        btn.style.display = 'block'
         btn.style.width = '5vh'
         btn.innerHTML = '<p><strong>×</strong></p>'
     };
@@ -342,17 +342,16 @@ function formatTitleCase(str) {
     }
 }
 
-function toggle(graphId, buttonId, openState=null) {
-    // toggles visibility style prop of an element identified by graphId
-    // openState optionally updates a JS variable to track viz status
-    el = document.getElementById(graphId)
+function toggle(boxId, buttonId, contentFunc=null) {
+    // toggles visibility style prop of an element identified by boxId
+    el = document.getElementById(boxId)
     bt = document.getElementById(buttonId)
 
     // if the graph is currently hidden...
     if (el.style.opacity != '1') {
 
         // reveal graph
-        el.style.visibility = 'visible'
+        el.style.display = 'flex'
         
         // update its opacity
         el.style.opacity = '1'
@@ -367,17 +366,12 @@ function toggle(graphId, buttonId, openState=null) {
 
         bt.style.width = '20vw'
         bt.innerHTML = '<p>graph</p>'
-        bt.style.visibility = 'visible'
+        bt.style.display = 'block'
 
         //ensure the opacity fade ends before the visibility changes 
         setTimeout(
-            () => { el.style.visibility = 'hidden'; }, 300
+            () => { el.style.display = 'none'; }, 300
             )
-        
-        if (openState) {
-            openState = false
-            return openState
-        }
     } else {
         console.log('WHAT')
     }
