@@ -214,7 +214,7 @@ function renderChart(e, siteData, autoShow = false, btn=document.getElementById(
         // update button display
         btn.style.visibility = 'visible'
         btn.style.width = '5vh'
-        btn.innerHTML = '<p class="x">×</p>'
+        btn.innerHTML = '<p><strong>×</strong></p>'
     };
 
     const colors = {
@@ -359,14 +359,14 @@ function toggle(graphId, buttonId, openState=null) {
 
         // update button display
         bt.style.width = '5vh'
-        bt.innerHTML = '<p class="x">×</p>'
+        bt.innerHTML = '<p><strong>×</strong></p>'
 
     // otherwise...
     } else if (el.style.opacity != '0') {
         el.style.opacity = '0'
 
         bt.style.width = '20vw'
-        bt.innerHTML = '<p>view graph</p>'
+        bt.innerHTML = '<p>graph</p>'
         bt.style.visibility = 'visible'
 
         //ensure the opacity fade ends before the visibility changes 

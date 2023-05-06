@@ -33,7 +33,7 @@ p {
     transition: width .3s;
     height: 5vh;
     border-radius: 2.5vh;
-    text-align: center;
+    display: block;
 }
 
 .menu {
