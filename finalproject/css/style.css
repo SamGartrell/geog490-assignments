@@ -9,6 +9,13 @@ p {
     margin: auto;
 }
 
+a, a:focus, a:hover {
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    color: #1CD6D9;
+    text-decoration: none;
+    font-size: smaller;
+}
+
 button {
     outline: white;
     background-color: rgba(30, 33, 40, 1);
@@ -45,6 +52,12 @@ button {
     /* visibility: hidden; this changes when a chart is rendered and a button is necessary */
     display: none;
     transition: width .3s;
+}
+
+#usgs-link {
+    justify-content: center;
+    align-items: center;
+    display: flex;
 }
 
 .menu {

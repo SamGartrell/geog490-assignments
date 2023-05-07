@@ -110,6 +110,7 @@ console.log(structuredData)
 
 // CHART
 const chartEl = document.getElementById('line-canvas')
+const linkEl = document.getElementById('usgs-link')
 
 // Options for the observer (which mutations to observe)
 const config = { attributes: true, childList: false, subtree: false };
@@ -129,6 +130,7 @@ const callback = (mutationList, observer) => {
             } finally {
                 if (structuredData[siteId] != undefined) {
                     chrt = renderChart(chartEl, structuredData[siteId], autoShow = true);
+                    renderLink(linkEl, siteId, text='view USGS graph')
 
                 } else {
                     console.log('7 day history unavailable for this location')
@@ -338,8 +340,7 @@ function renderChart(e, siteData, autoShow = false, btn = document.getElementByI
             title: {
                 display: true,
                 text: [
-                    `${formatTitleCase(siteData.name)} | ${flowRates[6]} cf/s`,
-                    `<a href=https://waterdata.usgs.gov/monitoring-location/${e.getAttribute('siteid')}/#parameterCode=00060&period=P7D>detailed view</a>`
+                    `${formatTitleCase(siteData.name)} | ${flowRates[6]} cf/s`
                 ],
                 fontColor: colors.neutral.bright
             }
@@ -411,4 +412,10 @@ function toggle(boxId, buttonId, contentFunc = null) {
         console.log('WHAT')
     }
 
+};
+
+function renderLink (e, id, text='view source') {
+    // renders a link to the USGS viewer for the given gauge
+    linkTag = `<a id="link" href="https://waterdata.usgs.gov/monitoring-location/${id}/#parameterCode=00060&period=P7D" target="_blank" rel="noopener noreferrer">${text}</a>`
+    e.innerHTML = linkTag
 };
