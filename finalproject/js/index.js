@@ -8,6 +8,10 @@ var map = new mapboxgl.Map({
 
 // Add geolocate control to the map.
 map.addControl(
+    new mapboxgl.NavigationControl()
+);
+
+map.addControl(
     new mapboxgl.GeolocateControl({
     positionOptions: {
         enableHighAccuracy: true
@@ -18,10 +22,6 @@ map.addControl(
     showUserHeading: true
     })
     );
-
-map.addControl(
-    new mapboxgl.NavigationControl()
-);
 
 // Data for Map points:
 // actual endpoint (started working...?)
@@ -269,10 +269,16 @@ function renderChart(e, siteData, autoShow = false, btn = document.getElementByI
         e.parentElement.parentElement.style.display = 'block'
         e.parentElement.parentElement.style.opacity = '1'
 
+        // toggle button image
+        img = btn.children[0]
+
         // update button display
         btn.style.display = 'block'
         btn.style.width = '5vh'
-        btn.innerHTML = '<p><strong>×</strong></p>'
+
+        // change symbology of icon
+        img.style.rotate = '45deg'
+        img.style['background-image'] = 'url(./img/plus.svg)'
     };
 
     const colors = {
@@ -407,6 +413,7 @@ function toggle(boxId, buttonId) {
 
     el = document.getElementById(boxId)
     bt = document.getElementById(buttonId)
+    img = bt.children[0] //assumes btton has an image
 
     // handle screen dimension stuff
     if (window.innerHeight <= window.innerWidth) {
@@ -425,17 +432,17 @@ function toggle(boxId, buttonId) {
         // update its opacity
         el.style.opacity = '1'
 
-        // update button display
-        bt.style.width = '5vh'
-        bt.innerHTML = '<p><strong>×</strong></p>'
+        // change symbology of icon
+        img.style.rotate = '45deg'
+        img.style['background-image'] = 'url(./img/plus.svg)'
+
 
         // otherwise...
     } else if (el.style.opacity != '0') {
         el.style.opacity = '0'
-
-        bt.style.width = '20vw'
-        bt.innerHTML = '<p>graph</p>'
         bt.style.display = 'block'
+        img.style.rotate = '0deg'
+        img.style['background-image'] = 'url(./img/graph.svg)'
 
         //ensure the opacity fade ends before the visibility changes 
         setTimeout(
