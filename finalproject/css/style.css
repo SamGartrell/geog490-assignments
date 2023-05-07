@@ -9,7 +9,9 @@ p {
     margin: auto;
 }
 
-a, a:focus, a:hover {
+a,
+a:focus,
+a:hover {
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
     color: #1CD6D9;
     text-decoration: none;
@@ -19,7 +21,7 @@ a, a:focus, a:hover {
 button {
     outline: white;
     background-color: rgba(30, 33, 40, 1);
-    border-color: rgba(255,255,255,0.4);
+    border-color: rgba(255, 255, 255, 0.4);
     border-radius: 2.5vh;
     height: 5vh;
     display: block;
@@ -43,7 +45,8 @@ button {
 
 #toggleGraph {
     width: 20vw;
-    display: none; /* this changes when a chart is rendered and a button is necessary */
+    display: none;
+    /* this changes when a chart is rendered and a button is necessary */
     transition: width .3s;
 }
 
@@ -67,12 +70,13 @@ button {
     width: 100%;
     justify-content: center;
     align-items: center;
-    height: 6%; /* set a height or remove this line to fit content */
+    height: 6%;
+    /* set a height or remove this line to fit content */
     position: absolute;
     bottom: 0;
-  }
+}
 
-  .media-box {
+.media-box {
     background-color: rgba(137, 43, 226, 0);
     opacity: 0;
     transition: max-width 0.3s;
@@ -86,9 +90,9 @@ button {
     left: 0;
     right: 0;
     padding: .5%;
-  }
-  
-  .chart {
+}
+
+.chart {
     background-color: rgba(30, 33, 40, 1);
     outline: 4px solid rgba(255, 255, 255, 0.4);
     outline-width: 1px;
@@ -97,7 +101,52 @@ button {
     margin: 20px;
     padding: 20px;
     height: 100%;
-    flex: 1 1 auto; /* this will make the charts grow and shrink as necessary */
-    min-width: calc(100% / 4 - 2%); /* adjust the fraction based on the number of charts you want to display */
+    flex: 1 1 auto;
+    /* this will make the charts grow and shrink as necessary */
+    min-width: calc(100% / 4 - 2%);
+    /* adjust the fraction based on the number of charts you want to display */
     max-width: calc(100% / 1 - 2%);
-  }
+}
+
+/* mapbox overrides */
+.mapboxgl-ctrl-icon {
+    display: none !important;
+}
+.mapboxgl-ctrl-zoom-in{
+    background-image: url(../img/plus.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.mapboxgl-ctrl-zoom-out{
+    background-image: url(../img/minus.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.mapboxgl-ctrl-compass{
+    background-image: url(../img/north.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.mapboxgl-ctrl-geolocate{
+    background-image: url(../img/crosshair.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.mapboxgl-ctrl-geolocate:active{
+    background-image: url(../img/fish.svg);
+}
+
+.mapboxgl-ctrl-group {
+    outline: solid rgba(255, 255, 255, .4) !important;
+    outline-width: 1px !important;
+    border-radius: 2.5vh !important;
+    background: rgba(30, 33, 40, 1) !important;
+}
+
+.mapboxgl-ctrl-group button+button {
+    border-top: 0px solid #ddd !important;
+}

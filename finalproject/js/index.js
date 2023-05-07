@@ -6,6 +6,23 @@ var map = new mapboxgl.Map({
     zoom: 8
 });
 
+// Add geolocate control to the map.
+map.addControl(
+    new mapboxgl.GeolocateControl({
+    positionOptions: {
+        enableHighAccuracy: true
+    },
+    // When active the map will receive updates to the device's location as it changes.
+    trackUserLocation: true,
+    // Draw an arrow next to the location dot to indicate which direction the device is heading.
+    showUserHeading: true
+    })
+    );
+
+map.addControl(
+    new mapboxgl.NavigationControl()
+);
+
 // Data for Map points:
 // actual endpoint (started working...?)
 var endpoint = `https://waterservices.usgs.gov/nwis/iv/?format=json&indent=on&stateCd=or&${formatDateStamp(0)}&parameterCd=00060&siteStatus=active`
