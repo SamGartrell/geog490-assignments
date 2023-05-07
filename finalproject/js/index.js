@@ -30,19 +30,39 @@ fetch(endpoint)
             counter++;
             if (counter <= limit) {
                 try {
-                    // make a little gauge object "g" for better readability
-                    g = {
-                        'lat': gauge.sourceInfo.geoLocation.geogLocation.latitude,
-                        'lon': gauge.sourceInfo.geoLocation.geogLocation.longitude,
-                        'title': formatTitleCase(gauge.sourceInfo.siteName),
-                        'id': gauge.sourceInfo.siteCode[0].value,
-                        'data': {
-                            'value': gauge.values[0].value[0].value,
-                            'time': gauge.values[0].value[0].dateTime,
-                            'desc': gauge.variable.variableDescription,
-                            'unit': gauge.variable.unit.unitcode
+                    try {
+                        // make a little gauge object "g" for better readability
+                        g = {
+                            'lat': gauge.sourceInfo.geoLocation.geogLocation.latitude,
+                            'lon': gauge.sourceInfo.geoLocation.geogLocation.longitude,
+                            'title': formatTitleCase(gauge.sourceInfo.siteName),
+                            'id': gauge.sourceInfo.siteCode[0].value,
+                            'data': {
+                                'value': gauge.values[0].value[0].value,
+                                'time': gauge.values[0].value[0].dateTime,
+                                'desc': gauge.variable.variableDescription,
+                                'unit': gauge.variable.unit.unitcode
+                            }
+                        };
+                    } catch (error) {
+                        if (error instanceof TypeError) {
+                            g = {
+                                'lat': gauge.sourceInfo.geoLocation.geogLocation.latitude,
+                                'lon': gauge.sourceInfo.geoLocation.geogLocation.longitude,
+                                'title': formatTitleCase(gauge.sourceInfo.siteName),
+                                'id': gauge.sourceInfo.siteCode[0].value,
+                                'data': {
+                                    'value': gauge.values[1].value[0].value,
+                                    'time': gauge.values[1].value[0].dateTime,
+                                    'desc': gauge.variable.variableDescription,
+                                    'unit': gauge.variable.unit.unitcode
+                                }
+                            };
+                        } else {
+                            console.log(error)
                         }
-                    };
+                    }
+
 
                     // create a popup
                     // TODO: put info like this next to the graph and think of a cool css way to have the cards balanced on mobile etc
@@ -73,8 +93,8 @@ fetch(endpoint)
                     element.setAttribute(
                         'onClick', "passID(this)"
                     );
-                } catch (typeError) {
-                    console.log(`yielded typeerror:`, gauge, typeError)
+                } catch (error) {
+                    console.log(`error:`, gauge, error)
                 }
             }
         }
@@ -192,10 +212,22 @@ function retrieveData() {
                         readings: {}
                     };
                 }
+                try {
+                    // changed to "let" to enable error recovery
+                    let readings = timeSeries[j].values[0].value.map(v => parseFloat(v.value));
+                    let index = data.indexOf(json) + 1;
+                    results[siteCode].readings[index] = readings;
 
-                const readings = timeSeries[j].values[0].value.map(v => parseFloat(v.value));
-                const index = data.indexOf(json) + 1;
-                results[siteCode].readings[index] = readings;
+                } catch (error) {
+                    if (error instanceof TypeError && timeseries[j].values) {
+                        // if len(values array) > 1, try the next one to see if it has readings in it
+                        let readings = timeSeries[j].values[1].value.map(v => parseFloat(v.value));
+                        let index = data.indexOf(json) + 1;
+                        results[siteCode].readings[index] = readings;
+                    }
+
+                }
+
             }
         });
 
@@ -205,12 +237,12 @@ function retrieveData() {
     return results
 }
 
-function renderChart(e, siteData, autoShow = false, btn=document.getElementById('toggleGraph')) {
+function renderChart(e, siteData, autoShow = false, btn = document.getElementById('toggleGraph')) {
     if (autoShow) {
         // automatically show the graph when a gauge is clicked
         e.parentElement.parentElement.style.display = 'block'
         e.parentElement.parentElement.style.opacity = '1'
-        
+
         // update button display
         btn.style.display = 'block'
         btn.style.width = '5vh'
@@ -262,7 +294,7 @@ function renderChart(e, siteData, autoShow = false, btn=document.getElementById(
         labels,
         datasets: [{
             data: flowRates,
-            label: formatTitleCase(siteData.name),
+            // label: formatTitleCase(siteData.name), // takes name out of datatooltip
             fill: true,
             backgroundColor: colors.theme.mutedBlue,
             borderColor: colors.theme.blue,
@@ -305,7 +337,10 @@ function renderChart(e, siteData, autoShow = false, btn=document.getElementById(
             },
             title: {
                 display: true,
-                text: `${formatTitleCase(siteData.name)} | ${flowRates[6]} cf/s`,
+                text: [
+                    `${formatTitleCase(siteData.name)} | ${flowRates[6]} cf/s`,
+                    `<a href=https://waterdata.usgs.gov/monitoring-location/${e.getAttribute('siteid')}/#parameterCode=00060&period=P7D>detailed view</a>`
+                ],
                 fontColor: colors.neutral.bright
             }
         }
@@ -342,7 +377,7 @@ function formatTitleCase(str) {
     }
 }
 
-function toggle(boxId, buttonId, contentFunc=null) {
+function toggle(boxId, buttonId, contentFunc = null) {
     // toggles visibility style prop of an element identified by boxId
     el = document.getElementById(boxId)
     bt = document.getElementById(buttonId)
@@ -352,7 +387,7 @@ function toggle(boxId, buttonId, contentFunc=null) {
 
         // reveal graph
         el.style.display = 'flex'
-        
+
         // update its opacity
         el.style.opacity = '1'
 
@@ -360,7 +395,7 @@ function toggle(boxId, buttonId, contentFunc=null) {
         bt.style.width = '5vh'
         bt.innerHTML = '<p><strong>×</strong></p>'
 
-    // otherwise...
+        // otherwise...
     } else if (el.style.opacity != '0') {
         el.style.opacity = '0'
 
@@ -371,7 +406,7 @@ function toggle(boxId, buttonId, contentFunc=null) {
         //ensure the opacity fade ends before the visibility changes 
         setTimeout(
             () => { el.style.display = 'none'; }, 300
-            )
+        )
     } else {
         console.log('WHAT')
     }
