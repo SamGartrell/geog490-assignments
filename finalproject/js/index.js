@@ -129,6 +129,13 @@ const callback = (mutationList, observer) => {
                 ReferenceError
             } finally {
                 if (structuredData[siteId] != undefined) {
+                    // handle screen dimension stuff
+                    if (window.innerHeight <= window.innerWidth) {
+                        chartEl.parentElement.parentElement.style.maxWidth = '50vw'
+                    } else {
+                        chartEl.parentElement.parentElement.style.maxWidth = null
+                    }
+
                     chrt = renderChart(chartEl, structuredData[siteId], autoShow = true);
                     renderLink(linkEl, siteId, text='view USGS graph')
 
@@ -378,10 +385,19 @@ function formatTitleCase(str) {
     }
 }
 
-function toggle(boxId, buttonId, contentFunc = null) {
+function toggle(boxId, buttonId) {
     // toggles visibility style prop of an element identified by boxId
+
     el = document.getElementById(boxId)
     bt = document.getElementById(buttonId)
+
+    // handle screen dimension stuff
+    if (window.innerHeight <= window.innerWidth) {
+        chartEl.parentElement.parentElement.style.maxWidth = '50vw'
+    } else {
+        chartEl.parentElement.parentElement.style.maxWidth = null
+    }
+
 
     // if the graph is currently hidden...
     if (el.style.opacity != '1') {

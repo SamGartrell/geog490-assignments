@@ -75,6 +75,7 @@ button {
   .media-box {
     background-color: rgba(137, 43, 226, 0);
     opacity: 0;
+    transition: max-width 0.3s;
     transition: opacity 0.3s;
     display: none;
     z-index: 9999;
