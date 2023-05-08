@@ -233,7 +233,10 @@
                     // open a popup at the location of the feature, with description HTML from its properties.
                     map.on('click', layerID, function (e) {
                         var coordinates = e.features[0].geometry.coordinates.slice();
-                        var description = `a great place to do ${e.features[0].properties.icon} stuff`;
+                        var description = `
+                        <p>a great place to do ${e.features[0].properties.icon} stuff</p>
+                        <a href="https://en.wikipedia.org/wiki/${e.features[0].properties.icon}" target="_blank" rel="noreferrer noopener">learn more about ${e.features[0].properties.icon}s</a>
+                        `;
 
                         new mapboxgl.Popup()
                             .setLngLat(coordinates)
