@@ -2,28 +2,6 @@
 <html>
 <head>
 <style>
-#title{
-  background-color: pink;
-  color: white;
-  text-decoration-line: black;
-  padding: 2rem;
-  z-index: 999999999;
-  position: absolute;
-  background: url(img/pdx.jpg);
-  background-repeat: no-repeat;
-  background-size: auto;
-  border-radius: 2rem;
-  margin: 20px;
-  text-shadow: -1px 1px 0 #000,
-				  1px 1px 0 #000,
-				 1px -1px 0 #000,
-				-1px -1px 0 #000;
-  font: 'Garamond'
-
-}
-h2 {
-  font-size: 20pt
-}
 body {
     margin:0; padding:0;
 }
@@ -43,48 +21,21 @@ body {
 <body>
 
     <div id='map'></div>
-    <div id="title">
-        <h2>Portland</h2>
-        <p>Sam Gartrell</p>
-    </div>
-
 
 <script>
-    let lng = -122.6788;
+    let lng = -122.6788; // set lng and lat to wherever you want to map
     let lat = 45.5212;
 
-    mapboxgl.accessToken = 'pk.eyJ1Ijoic2FtZ2FydHJlbGwiLCJhIjoiY2w3OWt3MW00MDNjbDN2cGRpc20ya3JnbyJ9.6t2ISNlyP1BvBmkSH2Ks_Q';
+    mapboxgl.accessToken = 'make a mapbox account and put ur access token here';
 
     var map = new mapboxgl.Map({
         container: 'map', // id of a div on your page, where the map will be inserted
-        style: 'mapbox://styles/samgartrell/clgbdgpor002j01pg9mbx6o4y', // stylesheet location
+        style: 'make a basemap in mapbox studio (with your data in it) and add its url here',
         center: [lng, lat], // starting position [lng, lat] eg. [-122.6788, 45.5212]
         pitch: 70,
         bearing: -17.6,
         zoom: 11 // starting zoom 
     });
-
-    var pdx_pop = new mapboxgl.Popup({closeOnClick: false})
-        .setHTML("<h1>Portland</h1><br><p>a classic PNW town</p><br><a href='https://en.wikipedia.org/wiki/Portland,_Oregon'>read about it</a>") //popup text
-        
-
-    var mocks_pop = new mapboxgl.Popup({closeOnClick: false}) 
-        .setHTML("<h1>Mock's Crest</h1><br><p>a good place to sit and watch the sunset</p><br><a href='https://foursquare.com/v/mocks-crest-park/4da38fd47aee548168b8ecfe'>read about it</a>") //popup text
-        ; //add this popup to the map!
-
-    var pdx_marker = new mapboxgl.Marker({
-        color: '#812BD1'
-    })
-        .setLngLat([lng, lat]) // starting position [lng, lat] 
-        .addTo(map)
-        .setPopup(pdx_pop);
-
-    var mocks_marker = new mapboxgl.Marker({
-        color: '#812BD1'
-    })
-        .setLngLat([-122.6914, 45.5544]) // starting position [lng, lat] 
-        .addTo(map)
-        .setPopup(mocks_pop);
     
 </script>
 
