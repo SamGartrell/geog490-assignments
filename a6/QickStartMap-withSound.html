@@ -59,9 +59,87 @@
       text-align: center;
       font-weight: bold;
       color: oldlace;
-      background: DarkRed;
       cursor: pointer;
     }
+
+    #PortlandButton {
+      background: Pink;
+    }
+
+    #LondonButton {
+      background: purple;
+    }
+
+    #YellowstoneButton {
+      background: navy;
+    }
+
+    .pdx {
+      background: pink;
+      border: 3px solid oldlace;
+      width: 20px;
+      height: 20px;
+      border-radius: 20px;
+      border-style: double;
+      transition: width .1s, height, .1s border-width .1s, rotate .5s;
+    }
+
+    .pdx:hover {
+      border-width: 8px;
+      width: 16px;
+      height: 16px;
+      transition: width .1s, height .1s, border-width .1s;
+    }
+
+    .pdx:active {
+      background: oldlace;
+      border-color: pink;
+    }
+
+    .ldn {
+      background: purple;
+      border: 3px solid oldlace;
+      width: 20px;
+      height: 20px;
+      border-radius: 20px;
+      border-style: double;
+      transition: width .1s, height, .1s border-width .1s, rotate .5s;
+    }
+
+    .ldn:hover {
+      border-width: 8px;
+      width: 16px;
+      height: 16px;
+      transition: width .1s, height .1s, border-width .1s;
+    }
+
+    .ldn:active {
+      background: oldlace;
+      border-color: purple;
+    }
+
+    .yls {
+      background: navy;
+      border: 3px solid oldlace;
+      width: 20px;
+      height: 20px;
+      border-radius: 20px;
+      border-style: double;
+      transition: width .1s, height, .1s border-width .1s, rotate .5s;
+    }
+
+    .yls:hover {
+      border-width: 8px;
+      width: 16px;
+      height: 16px;
+      transition: width .1s, height .1s, border-width .1s;
+    }
+
+    .yls:active {
+      background: oldlace;
+      border-color: navy;
+    }
+
 
     button {
       font-family: 'Pacifico', serif;
@@ -117,28 +195,33 @@
     var popup3 = new mapboxgl.Popup({ minWidth: '300px' })
       .setHTML(popup3_content);
 
-
     // Marker 1 - Portland
-    var marker1 = new mapboxgl.Marker({ color: 'DarkRed' })
+    const el1 = document.createElement('div');
+    el1.className = 'pdx';
+
+    var marker1 = new mapboxgl.Marker(el1)
       .setLngLat([-122.6788, 45.5212]) // Portland 
       //add .setPopup here
       .setPopup(popup1)
       .addTo(map);
 
 
-    // Marker 2 - London 
-    var marker2 = new mapboxgl.Marker({ color: 'DarkRed' })
+    // Marker 2 - London
+    const el2 = document.createElement('div');
+    el2.className = 'ldn';
+    var marker2 = new mapboxgl.Marker(el2)
       .setLngLat([-0.1534307, 51.501223]) // London 
       .setPopup(popup2)
       .addTo(map);
 
 
     // Marker 3 - Yellowstone
-    var marker3 = new mapboxgl.Marker({ color: 'DarkRed' })
+    const el3 = document.createElement('div');
+    el3.className = 'yls';
+    var marker3 = new mapboxgl.Marker(el3)
       .setLngLat([-110.74524187568, 44.706216445069]) // Yellowstone
       .setPopup(popup3)
       .addTo(map);
-
 
     /***  LISTENERS  ***/
     // Add a 'Listener' to the button element with the ID 'LondonButton'.
