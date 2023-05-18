@@ -274,7 +274,7 @@ function renderChart(e, siteData, autoShow = false, btn = document.getElementByI
 
         // update button display
         btn.style.display = 'block'
-        btn.style.width = '5vh'
+        btn.style.width = '30px'
 
         // change symbology of icon
         img.style.rotate = '45deg'
